@@ -55,8 +55,9 @@ contract Order {
         erc20 = erc20address;
     }
 
-    function addCustomer(string memory customerAddress) public {
+    function addCustomer(string memory customerAddress) public returns(address){
         customer memory newCustomer = customer(0, customerAddress, true);
         customers[msg.sender] = newCustomer;
+        return (msg.sender);
     }
 }
