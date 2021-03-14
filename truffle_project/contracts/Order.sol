@@ -48,16 +48,79 @@ contract Order {
     mapping(uint256 => order) public orders;
     // orderID => customer_token
     mapping(uint256 => uint256) private customerTokens;
-    
+
     ERC20 erc20;
+    uint256 orderIDCounter = 0;
+
+    modifier customerOnly() {
+        require(customers[msg.sender].exist, "Customer only");
+        _;
+    }
+
+    modifier ownOrderOnly(uint256 orderId) {
+        require(
+            orders[orderId].customer == msg.sender,
+            "Can edit own orders only"
+        );
+        _;
+    }
 
     constructor(ERC20 erc20address) public {
         erc20 = erc20address;
     }
 
-    function addCustomer(string memory customerAddress) public returns(address){
+    function addCustomer(string memory customerAddress)
+        public
+        returns (address)
+    {
         customer memory newCustomer = customer(0, customerAddress, true);
         customers[msg.sender] = newCustomer;
         return (msg.sender);
+    }
+
+    function addRider() public returns (address) {
+        rider memory newRider = rider(0, true);
+        riders[msg.sender] = newRider;
+        return (msg.sender);
+    }
+
+    function createOrder(
+        string memory _restaurant,
+        uint256 _deliveryFee,
+        string memory _deliveryAddress
+    ) public customerOnly returns (uint256) {
+        order storage newOrder = orders[orderIDCounter];
+        newOrder.customer = msg.sender;
+        newOrder.orderId = orderIDCounter;
+        newOrder.deliveryFee = _deliveryFee;
+        newOrder.restaurant = _restaurant;
+        newOrder.delivered = false;
+        newOrder.items[""] = 0;
+
+        orderIDCounter++;
+
+        // Update delivery address of customer
+        customers[msg.sender].deliveryAddress = _deliveryAddress;
+
+        return (orderIDCounter - 1);
+    }
+
+    function reviewOrder(uint256 orderId)
+        public
+        view
+        returns (
+            address _customer,
+            address _rider,
+            uint256 _deliveryFee,
+            string memory _restaurant
+        )
+    {
+        order memory currOrder = orders[orderId];
+        return (
+            currOrder.customer,
+            currOrder.rider,
+            currOrder.deliveryFee,
+            currOrder.restaurant
+        );
     }
 }
