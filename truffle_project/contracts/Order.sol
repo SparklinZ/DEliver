@@ -104,7 +104,15 @@ contract Order {
         return (orderIDCounter - 1);
     }
 
-    function addItem(uint256 orderId, string memory itemName, uint256 quantity) public {
+    function deleteOrder(uint256 orderId) public ownOrderOnly(orderId) {
+        delete orders[orderId];
+    }
+
+    function addItem(
+        uint256 orderId,
+        string memory itemName,
+        uint256 quantity
+    ) public ownOrderOnly(orderId) {
         //quantity has to be more than 0
         require(quantity > 0, "Invalid quantity");
 
@@ -112,7 +120,19 @@ contract Order {
         orders[orderId].items[itemName] = quantity;
     }
 
-    function getItemQuantity(uint256 orderId, string memory itemName) public view returns (uint256) {
+    function removeItem(uint256 orderId, string memory itemName)
+        public
+        ownOrderOnly(orderId)
+    {
+        //add item into mapping of the order
+        orders[orderId].items[itemName] = 0;
+    }
+
+    function getItemQuantity(uint256 orderId, string memory itemName)
+        public
+        view
+        returns (uint256)
+    {
         return orders[orderId].items[itemName];
     }
 

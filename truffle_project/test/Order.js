@@ -59,12 +59,58 @@ contract('Order', function(accounts) {
     });
   });
 
-  describe('Add an item', function() {
+  describe('Add item to order', function() {
     it('Should be able to add an item', async() => {
-        await orderInstance.addItem(0, "McChicken", 1, {from: customerAccount})
+        await orderInstance.addItem(0, "McChicken", 1, {from: customerAccount});
         let quantity = await orderInstance.getItemQuantity.call(0, "McChicken");
 
         assert.strictEqual(quantity.toNumber(), 1, "Incorrect item quantity");
+    });
+
+    it('Should not be able to add an item if quantity specified is zero', async() => {
+      await truffleAssert.reverts(
+        orderInstance.addItem(0, "McChicken", 0, {
+            from: customerAccount
+        }),
+        "Invalid quantity"
+      );
+    });
+
+    it('Should not be able to add an item if not the owner of order', async() => {
+      await truffleAssert.reverts(
+        orderInstance.addItem(0, "McChicken", 1, {
+            from: riderAccount
+        }),
+        "Can edit own orders only"
+      );
+    });
+  });
+
+  describe('Remove item from order', function() {
+    it('Should be able to remove an item', async() => {
+        await orderInstance.removeItem(0, "McChicken", {from: customerAccount});
+        let quantity = await orderInstance.getItemQuantity.call(0, "McChicken");
+
+        assert.strictEqual(quantity.toNumber(), 0, "Incorrect item quantity");
+    });
+
+    it('Should not be able to remove an item if not the owner of order', async() => {
+      await truffleAssert.reverts(
+        orderInstance.removeItem(0, "McChicken", {
+            from: riderAccount
+        }),
+        "Can edit own orders only"
+      );
+    });
+  });
+
+  describe('Delete Order', function() {
+    it('Should be able to delete an order', async() => {
+        await orderInstance.deleteOrder(0, {from: customerAccount})
+        .then(() => orderInstance.orders.call(0))
+        .then((order) => {
+          assert.equal(order.customer.valueOf(), 0, "Deletion not successful");
+        });
     });
   });
 
