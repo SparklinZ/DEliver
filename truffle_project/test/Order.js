@@ -59,4 +59,13 @@ contract('Order', function(accounts) {
     });
   });
 
+  describe('Add an item', function() {
+    it('Should be able to add an item', async() => {
+        await orderInstance.addItem(0, "McChicken", 1, {from: customerAccount})
+        let quantity = await orderInstance.getItemQuantity.call(0, "McChicken");
+
+        assert.strictEqual(quantity.toNumber(), 1, "Incorrect item quantity");
+    });
+  });
+
 });

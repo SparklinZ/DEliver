@@ -95,7 +95,6 @@ contract Order {
         newOrder.deliveryFee = _deliveryFee;
         newOrder.restaurant = _restaurant;
         newOrder.delivered = false;
-        newOrder.items[""] = 0;
 
         orderIDCounter++;
 
@@ -103,6 +102,18 @@ contract Order {
         customers[msg.sender].deliveryAddress = _deliveryAddress;
 
         return (orderIDCounter - 1);
+    }
+
+    function addItem(uint256 orderId, string memory itemName, uint256 quantity) public {
+        //quantity has to be more than 0
+        require(quantity > 0, "Invalid quantity");
+
+        //add item into mapping of the order
+        orders[orderId].items[itemName] = quantity;
+    }
+
+    function getItemQuantity(uint256 orderId, string memory itemName) public view returns (uint256) {
+        return orders[orderId].items[itemName];
     }
 
     function reviewOrder(uint256 orderId)
