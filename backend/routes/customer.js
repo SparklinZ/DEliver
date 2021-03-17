@@ -14,7 +14,7 @@ router.get('/', function (req, res, next) {
 });
 
 //req.body user 1-10
-router.get('/register', async function (req, res, next) {
+router.get('/addCustomer', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
@@ -26,6 +26,25 @@ router.get('/register', async function (req, res, next) {
         }
       }).then(result => {
         res.status(200);
+        res.send(result);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
+//req.body user 1-10
+router.get('/createOrder', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.createOrder.call(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] })
+      .then(orderId => {
+        order.createOrder(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] });
+        return orderId;
+      }).then(orderId => {
+        res.status(200);
         res.send(orderId);
       })
   } catch (err) {
@@ -35,25 +54,83 @@ router.get('/register', async function (req, res, next) {
 });
 
 //req.body user 1-10
-router.get('/order', async function (req, res, next) {
+router.get('/deleteOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
-  var orderId;
   try {
-    await order.createOrder.call(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] })
-      .then(id => {
-        orderId = id;
-      }).then(() => {
-        order.createOrder(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] })
-      }).then(() => {
+    await order.deleteOrder({ from: accts[req.body.user] })
+      .then(result => {
         res.status(200);
-        res.send(orderId);
+        res.send(result);
       })
   } catch (err) {
     res.status(500)
     res.render('error', { error: err })
   }
+});
 
+router.get('/addItem', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.addItem(req.body.orderId, req.body.itemName, req.body.quantity, { from: accts[req.body.user] })
+      .then(result => {
+        res.status(200);
+        res.send(result);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
+router.get('/removeItem', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.removeItem(req.body.orderId, req.body.itemName, { from: accts[req.body.user] })
+      .then(result => {
+        res.status(200);
+        res.send(result);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
+router.get('/getItemQuantity', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.getItemQuantity.call(req.body.orderId, req.body.itemName, { from: accts[req.body.user] })
+      .then(result => {
+        res.status(200);
+        res.send(result);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
+router.get('/reviewOrder', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.reviewOrder.call(req.body.orderId, { from: accts[req.body.user] })
+    .then(result =>{
+      await order.reviewOrder(req.body.orderId, { from: accts[req.body.user] });
+      return result;
+    })
+      .then(result => {
+        res.status(200);
+        res.send(result);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
 });
 
 module.exports = router;
