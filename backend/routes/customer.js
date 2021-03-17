@@ -17,9 +17,7 @@ router.get('/', function (req, res, next) {
 router.get('/addCustomer', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
-  console.log(accts)
   try {
-    console.log(req.body)
     await order.addCustomer.call(req.body.deliveryAddress, { from: accts[req.body.user] })
       .then((_result) => {
         console.log(_result)
