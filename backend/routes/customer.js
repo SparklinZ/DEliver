@@ -17,12 +17,15 @@ router.get('/', function (req, res, next) {
 router.get('/addCustomer', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
+  console.log(accts)
   try {
+    console.log(req.body)
     await order.addCustomer.call(req.body.deliveryAddress, { from: accts[req.body.user] })
       .then((_result) => {
+        console.log(_result)
         if (_result == accts[req.body.user]) {
-          await order.addCustomer(req.body.deliveryAddress, { from: accts[req.body.user] })
-          return result
+          order.addCustomer(req.body.deliveryAddress, { from: accts[req.body.user] });
+          return _result
         }
       }).then(result => {
         res.status(200);
@@ -120,7 +123,7 @@ router.get('/reviewOrder', async function (req, res, next) {
   try {
     await order.reviewOrder.call(req.body.orderId, { from: accts[req.body.user] })
     .then(result =>{
-      await order.reviewOrder(req.body.orderId, { from: accts[req.body.user] });
+      order.reviewOrder(req.body.orderId, { from: accts[req.body.user] });
       return result;
     })
       .then(result => {
