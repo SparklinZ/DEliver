@@ -17,10 +17,10 @@ router.get('/addRider', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.addCustomer.call({ from: accts[req.body.user] })
+    await order.addRider.call({ from: accts[req.body.user] })
       .then((_result) => {
         if (_result == accts[req.body.user]) {
-          await order.addCustomer({ from: accts[req.body.user] })
+          await order.addRider({ from: accts[req.body.user] })
           return result
         }
       }).then(result => {
