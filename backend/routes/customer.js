@@ -9,20 +9,51 @@ Order.setProvider(web3.currentProvider)
 
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-router.get('/register', async function(req, res, next) {
+//req.body user 1-10
+router.get('/register', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
-  // req.body.accountAddress
-  // req.body.deliveryAddress
-  result = await order.addCustomer.call('abcdefg', {from: accts[1]})
-  if(result == accts[1]){
-    await order.addCustomer('abcdefg', {from: accts[1]})
+  try {
+    await order.addCustomer.call(req.body.deliveryAddress, { from: accts[req.body.user] })
+      .then((_result) => {
+        if (_result == accts[req.body.user]) {
+          await order.addCustomer(req.body.deliveryAddress, { from: accts[req.body.user] })
+          return result
+        }
+      }).then(result => {
+        res.status(200);
+        res.send(orderId);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
   }
-  res.send(result);
+});
+
+//req.body user 1-10
+router.get('/order', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  var orderId;
+  try {
+    await order.createOrder.call(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] })
+      .then(id => {
+        orderId = id;
+      }).then(() => {
+        order.createOrder(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] })
+      }).then(() => {
+        res.status(200);
+        res.send(orderId);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+
 });
 
 module.exports = router;
