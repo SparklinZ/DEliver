@@ -134,4 +134,25 @@ router.get('/reviewOrder', async function (req, res, next) {
   }
 });
 
+router.get('/testing', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.addCustomer('somewhere', { from: accts[1] })
+    .then(() => order.createOrder2.call('MickeyDs','150','JE',['burgerA','burgerB'],[3,7], { from: accts[1] }))
+    .then(result =>{
+      order.createOrder2('MickeyDs','150','JE',['burgerA','burgerB'],[3,7], { from: accts[1] });
+      return result;
+    })
+      .then(result => {
+        res.status(200);
+        res.send(result);
+      })
+    
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
 module.exports = router;

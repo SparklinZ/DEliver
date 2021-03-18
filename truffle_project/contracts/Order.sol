@@ -1,3 +1,4 @@
+pragma experimental ABIEncoderV2;
 pragma solidity ^0.5.0;
 import "./ERC20.sol";
 
@@ -20,7 +21,8 @@ contract Order {
         uint256 deliveryFee;
         string restaurant;
         // item name to quantity
-        mapping(string => uint256) items;
+        string[] itemNames;
+        uint256[] itemQuantities;
         bool delivered;
     }
 
@@ -50,7 +52,7 @@ contract Order {
     mapping(uint256 => uint256) private customerTokens;
 
     ERC20 erc20;
-    uint256 orderIDCounter = 0;
+    uint256 orderIDCounter = 1;
 
     modifier customerOnly() {
         require(customers[msg.sender].exist, "Customer only");
@@ -108,32 +110,38 @@ contract Order {
         delete orders[orderId];
     }
 
-    function addItem(
-        uint256 orderId,
-        string memory itemName,
-        uint256 quantity
-    ) public ownOrderOnly(orderId) {
-        //quantity has to be more than 0
-        require(quantity > 0, "Invalid quantity");
+    // function addItem(
+    //     uint256 orderId,
+    //     string memory itemName,
+    //     uint256 quantity
+    // ) public ownOrderOnly(orderId) {
+    //     //quantity has to be more than 0
+    //     require(quantity > 0, "Invalid quantity");
 
-        //add item into mapping of the order
-        orders[orderId].items[itemName] = quantity;
-    }
+    //     //add item into mapping of the order
+    //     orders[orderId].items[itemName] = quantity;
+    // }
 
-    function removeItem(uint256 orderId, string memory itemName)
-        public
-        ownOrderOnly(orderId)
-    {
-        //add item into mapping of the order
-        orders[orderId].items[itemName] = 0;
-    }
+    // function removeItem(uint256 orderId, string memory itemName)
+    //     public
+    //     ownOrderOnly(orderId)
+    // {
+    //     //add item into mapping of the order
+    //     orders[orderId].items[itemName] = 0;
+    // }
 
     function getItemQuantity(uint256 orderId, string memory itemName)
         public
         view
         returns (uint256)
     {
-        return orders[orderId].items[itemName];
+        string[] memory itemNames = orders[orderId].itemNames;
+        for(uint i=0; i<itemNames.length;i++){
+            string memory temp = orders[orderId].itemNames[i];
+            if(keccak256(bytes(temp)) == keccak256(bytes(itemName))){
+                return orders[orderId].itemQuantities[i];
+            }
+        }
     }
 
     function reviewOrder(uint256 orderId)
@@ -153,5 +161,28 @@ contract Order {
             currOrder.deliveryFee,
             currOrder.restaurant
         );
+    }
+
+    function createOrder2(
+        string memory _restaurant,
+        uint256 _deliveryFee,
+        string memory _deliveryAddress,
+        string[] memory itemNames,
+        uint256[] memory itemQuantities
+    ) public customerOnly returns (uint256) {
+        require(itemNames.length == itemQuantities.length, "itemNames and itemQuantities not of same length");
+        //create items
+        string[] memory _itemNames = itemNames;
+        uint256[] memory _itemQuantities = itemQuantities;
+
+        //create order
+        order memory newOrder = order(msg.sender, address(0), orderIDCounter, _deliveryFee, _restaurant, _itemNames, _itemQuantities, false);
+        orders[orderIDCounter] = newOrder;
+        orderIDCounter++;
+
+        // Update delivery address of customer
+        customers[msg.sender].deliveryAddress = _deliveryAddress;
+
+        return (orderIDCounter - 1);
     }
 }
