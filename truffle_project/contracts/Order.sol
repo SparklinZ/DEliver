@@ -40,8 +40,9 @@ contract Order {
         mapping(address => bool) voted;
     }
 
-    // Time to resolve next conflict
-    uint256 nextResolve;
+    // Time and orderId to resolve next conflict
+    uint256 nextResolveTime;
+    uint256 nextResolveOrderId;
     // orderID => Conflict struct
     mapping(uint256 => conflict) public conflicts;
     mapping(address => customer) public customers;
@@ -54,8 +55,17 @@ contract Order {
     ERC20 erc20;
     uint256 orderIDCounter = 1;
 
+    constructor(ERC20 erc20address) public {
+        erc20 = erc20address;
+    }
+
     modifier customerOnly() {
         require(customers[msg.sender].exist, "Customer only");
+        _;
+    }
+
+    modifier registeredUserOnly() {
+        require(customers[msg.sender].exist || riders[msg.sender].exist, "Registered User only");
         _;
     }
 
@@ -67,8 +77,21 @@ contract Order {
         _;
     }
 
-    constructor(ERC20 erc20address) public {
-        erc20 = erc20address;
+    modifier resolveConflict() {
+        // + 86400
+        if(now >= nextResolveTime){
+            if(conflicts[nextResolveOrderId].customerVotes >= conflicts[nextResolveOrderId].riderVotes){
+                //transfer money to customer
+            }else{
+                //transfer money to rider
+            }
+            conflicts[nextResolveOrderId].resolved = true;
+            conflicts[nextResolveOrderId].votingNeeded = false;
+            //find the next conflict that requires resolution and update the nextResolveOrderId and nextResolveTime
+            //remember to + 86400 to the update time of the nextResolve conflict as it is one day
+        }
+
+        _;
     }
 
     function addCustomer(string memory customerAddress)
@@ -184,5 +207,53 @@ contract Order {
         customers[msg.sender].deliveryAddress = _deliveryAddress;
 
         return (orderIDCounter - 1);
+    }
+
+    function fileComplaint (
+        string memory _complaint,
+        uint256 _orderId
+    ) public registeredUserOnly returns (string memory) {
+        require(orders[_orderId].customer == msg.sender || orders[_orderId].rider == msg.sender, "You are not invovled in the orderId");
+        require(!orders[_orderId].delivered, "Delievery has already been confirmed by both rider and customer, complaint can no longer be filed");
+        
+        //create conflict
+        conflict storage _conflict = conflicts[_orderId];
+        if(orders[_orderId].customer == msg.sender){
+            require(bytes(conflicts[_orderId].customerComplaint).length == 0, "You have already filed and recorded your complaint");
+            _conflict.customerComplaint= _complaint;
+            _conflict.riderComplaint = "";
+        }else if(orders[_orderId].rider == msg.sender){
+            require(bytes(conflicts[_orderId].riderComplaint).length == 0, "You have already filed and recorded your complaint");
+            _conflict.riderComplaint = _complaint;
+            _conflict.customerComplaint= "";
+        }
+        _conflict.customerVotes = 0;
+        _conflict.riderVotes = 0;
+        _conflict.updateTime = now;
+        _conflict.resolved = false;
+        if(bytes(conflicts[_orderId].customerComplaint).length != 0 && bytes(conflicts[_orderId].riderComplaint).length != 0){
+            _conflict.votingNeeded = true;
+        }else{
+            _conflict.votingNeeded = false;
+        }
+
+        return ("Successfully Filed Complaint");
+    }
+
+    function voteConflict (
+        //true for customer, false for rider
+        bool _vote,
+        uint256 _orderId
+    ) public registeredUserOnly returns (string memory) {
+        require(conflicts[_orderId].votingNeeded, "Voting not required for OrderId");
+        require(!conflicts[_orderId].voted[msg.sender], "You have already voted");
+        
+        //create conflict
+        if(_vote){
+            conflicts[_orderId].customerVotes++;
+        }else if(!_vote){
+            conflicts[_orderId].riderVotes++;
+        }
+        return ("Successfully Voted");
     }
 }

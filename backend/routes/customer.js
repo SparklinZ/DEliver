@@ -148,7 +148,6 @@ router.get('/testing', async function (req, res, next) {
         res.status(200);
         res.send(result);
       })
-    
   } catch (err) {
     res.status(500)
     res.render('error', { error: err })
