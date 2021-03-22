@@ -24,6 +24,7 @@ contract Order {
         string[] itemNames;
         uint256[] itemQuantities;
         bool delivered;
+        uint256 orderTime;
     }
 
     struct conflict {
@@ -113,28 +114,30 @@ contract Order {
         string memory _restaurant,
         uint256 _deliveryFee,
         string memory _deliveryAddress,
-        string[] memory itemNames,
-        uint256[] memory itemQuantities
+        string[] memory _itemNames,
+        uint256[] memory _itemQuantities
     ) public customerOnly returns (uint256) {
-        require(itemNames.length == itemQuantities.length, "itemNames and itemQuantities not of same length");
-        //create items
-        string[] memory _itemNames = itemNames;
-        uint256[] memory _itemQuantities = itemQuantities;
+        require(_itemNames.length == _itemQuantities.length, "itemNames and itemQuantities not of same length");
 
         //create order
-        order memory newOrder = order(msg.sender, address(0), orderIDCounter, _deliveryFee, _restaurant, _itemNames, _itemQuantities, false);
+        order memory newOrder = order(msg.sender, address(0), orderIDCounter, _deliveryFee, _restaurant, _itemNames, _itemQuantities, false, now);
         orders[orderIDCounter] = newOrder;
         orderIDCounter++;
 
         // Update delivery address of customer
         customers[msg.sender].deliveryAddress = _deliveryAddress;
-
         return (orderIDCounter - 1);
     }
 
     //update order deliveryFee
+    function updateOrder(uint256 orderId, uint256 _deliveryFee) public ownOrderOnly(orderId) {
+        require(orders[orderId].rider == address(0), "Already picked up by rider");
+        orders[orderId].deliveryFee = _deliveryFee;
+    }
 
+    //delete order
     function deleteOrder(uint256 orderId) public ownOrderOnly(orderId) {
+        require(orders[orderId].rider == address(0), "Already picked up by rider");
         delete orders[orderId];
     }
 
@@ -151,6 +154,11 @@ contract Order {
             }
         }
     }
+
+    // function getOwnOrders() public customerOnly view returns (order[] memory)
+    // {
+
+    // }
 
     function fileComplaint (
         string memory _complaint,
