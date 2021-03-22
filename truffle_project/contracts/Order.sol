@@ -333,8 +333,7 @@ contract Order {
             !conflicts[_orderId].voted[msg.sender],
             "You have already voted"
         );
-
-        //create conflict
+        
         if (_vote) {
             conflicts[_orderId].customerVotes++;
         } else if (!_vote) {
