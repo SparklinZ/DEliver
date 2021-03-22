@@ -13,7 +13,6 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-//req.body user 1-10
 router.get('/addCustomer', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
@@ -40,13 +39,29 @@ router.get('/createOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.createOrder.call(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] })
-      .then(orderId => {
-        order.createOrder(req.body.restaurant, req.body.fee, req.body.deliveryAddress, { from: accts[req.body.user] });
-        return orderId;
-      }).then(orderId => {
+    await order.createOrder.call(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.getItemQuantities, { from: accts[req.body.user] })
+    .then(result =>{
+      order.createOrder(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.getItemQuantities, { from: accts[req.body.user] });
+      return result;
+    })
+      .then(result => {
         res.status(200);
-        res.send(orderId);
+        res.send(result);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
+router.get('/updateOrder', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.updateOrder(req.body.orderId, { from: accts[req.body.user] })
+      .then(result => {
+        res.status(200);
+        res.send(result);
       })
   } catch (err) {
     res.status(500)
@@ -59,37 +74,7 @@ router.get('/deleteOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.deleteOrder({ from: accts[req.body.user] })
-      .then(result => {
-        res.status(200);
-        res.send(result);
-      })
-  } catch (err) {
-    res.status(500)
-    res.render('error', { error: err })
-  }
-});
-
-router.get('/addItem', async function (req, res, next) {
-  var order = await Order.deployed();
-  accts = await web3.eth.getAccounts();
-  try {
-    await order.addItem(req.body.orderId, req.body.itemName, req.body.quantity, { from: accts[req.body.user] })
-      .then(result => {
-        res.status(200);
-        res.send(result);
-      })
-  } catch (err) {
-    res.status(500)
-    res.render('error', { error: err })
-  }
-});
-
-router.get('/removeItem', async function (req, res, next) {
-  var order = await Order.deployed();
-  accts = await web3.eth.getAccounts();
-  try {
-    await order.removeItem(req.body.orderId, req.body.itemName, { from: accts[req.body.user] })
+    await order.deleteOrder(req.body.orderId, { from: accts[req.body.user] })
       .then(result => {
         res.status(200);
         res.send(result);
@@ -115,35 +100,11 @@ router.get('/getItemQuantity', async function (req, res, next) {
   }
 });
 
-router.get('/reviewOrder', async function (req, res, next) {
+router.get('/getNotPickedUpOrders', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.reviewOrder.call(req.body.orderId, { from: accts[req.body.user] })
-    .then(result =>{
-      order.reviewOrder(req.body.orderId, { from: accts[req.body.user] });
-      return result;
-    })
-      .then(result => {
-        res.status(200);
-        res.send(result);
-      })
-  } catch (err) {
-    res.status(500)
-    res.render('error', { error: err })
-  }
-});
-
-router.get('/testing', async function (req, res, next) {
-  var order = await Order.deployed();
-  accts = await web3.eth.getAccounts();
-  try {
-    await order.addCustomer('somewhere', { from: accts[1] })
-    .then(() => order.createOrder2.call('MickeyDs','150','JE',['burgerA','burgerB'],[3,7], { from: accts[1] }))
-    .then(result =>{
-      order.createOrder2('MickeyDs','150','JE',['burgerA','burgerB'],[3,7], { from: accts[1] });
-      return result;
-    })
+    await order.getCustomerOrders.call({ from: accts[req.body.user] })
       .then(result => {
         res.status(200);
         res.send(result);
