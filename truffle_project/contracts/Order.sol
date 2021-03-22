@@ -112,83 +112,6 @@ contract Order {
     function createOrder(
         string memory _restaurant,
         uint256 _deliveryFee,
-        string memory _deliveryAddress
-    ) public customerOnly returns (uint256) {
-        order storage newOrder = orders[orderIDCounter];
-        newOrder.customer = msg.sender;
-        newOrder.orderId = orderIDCounter;
-        newOrder.deliveryFee = _deliveryFee;
-        newOrder.restaurant = _restaurant;
-        newOrder.delivered = false;
-
-        orderIDCounter++;
-
-        // Update delivery address of customer
-        customers[msg.sender].deliveryAddress = _deliveryAddress;
-
-        return (orderIDCounter - 1);
-    }
-
-    function deleteOrder(uint256 orderId) public ownOrderOnly(orderId) {
-        delete orders[orderId];
-    }
-
-    // function addItem(
-    //     uint256 orderId,
-    //     string memory itemName,
-    //     uint256 quantity
-    // ) public ownOrderOnly(orderId) {
-    //     //quantity has to be more than 0
-    //     require(quantity > 0, "Invalid quantity");
-
-    //     //add item into mapping of the order
-    //     orders[orderId].items[itemName] = quantity;
-    // }
-
-    // function removeItem(uint256 orderId, string memory itemName)
-    //     public
-    //     ownOrderOnly(orderId)
-    // {
-    //     //add item into mapping of the order
-    //     orders[orderId].items[itemName] = 0;
-    // }
-
-    function getItemQuantity(uint256 orderId, string memory itemName)
-        public
-        view
-        returns (uint256)
-    {
-        string[] memory itemNames = orders[orderId].itemNames;
-        for(uint i=0; i<itemNames.length;i++){
-            string memory temp = orders[orderId].itemNames[i];
-            if(keccak256(bytes(temp)) == keccak256(bytes(itemName))){
-                return orders[orderId].itemQuantities[i];
-            }
-        }
-    }
-
-    function reviewOrder(uint256 orderId)
-        public
-        view
-        returns (
-            address _customer,
-            address _rider,
-            uint256 _deliveryFee,
-            string memory _restaurant
-        )
-    {
-        order memory currOrder = orders[orderId];
-        return (
-            currOrder.customer,
-            currOrder.rider,
-            currOrder.deliveryFee,
-            currOrder.restaurant
-        );
-    }
-
-    function createOrder2(
-        string memory _restaurant,
-        uint256 _deliveryFee,
         string memory _deliveryAddress,
         string[] memory itemNames,
         uint256[] memory itemQuantities
@@ -207,6 +130,26 @@ contract Order {
         customers[msg.sender].deliveryAddress = _deliveryAddress;
 
         return (orderIDCounter - 1);
+    }
+
+    //update order deliveryFee
+
+    function deleteOrder(uint256 orderId) public ownOrderOnly(orderId) {
+        delete orders[orderId];
+    }
+
+    function getItemQuantity(uint256 orderId, string memory itemName)
+        public
+        view
+        returns (uint256)
+    {
+        string[] memory itemNames = orders[orderId].itemNames;
+        for(uint i=0; i<itemNames.length;i++){
+            string memory temp = orders[orderId].itemNames[i];
+            if(keccak256(bytes(temp)) == keccak256(bytes(itemName))){
+                return orders[orderId].itemQuantities[i];
+            }
+        }
     }
 
     function fileComplaint (
