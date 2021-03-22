@@ -1,0 +1,39 @@
+.orders {
+  justify-content: center;
+  align-content: center;
+  text-align: right;
+}
+
+.orders h1 {
+  font-size: 4rem;
+  text-align: right;
+  width: 70%;
+  margin-bottom: 2rem;
+  color: #13294B;
+}
+
+
+ul {
+    justify-content: right;
+    list-style-type: none;
+    width: 80%;
+}
+
+h3 {
+    font: bold 1.5rem Helvetica, Verdana, sans-serif;
+}
+
+li p {
+    font: 200 0.8rem Georgia, Times New Roman, serif;
+    with: 70%
+}
+
+li {
+    padding: 10px;
+    overflow: auto;
+}
+
+li:hover {
+    background: #eee;
+    cursor: pointer;
+}

@@ -1,0 +1,69 @@
+.form {
+  justify-content: center;
+  align-content: center;
+}
+
+.form h1 {
+  font-size: 4rem;
+  text-align: center;
+  width: 70%;
+  margin-bottom: 2rem;
+  color: #13294B;
+}
+
+.form-inputs {
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+
+.form-inputs p {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  color: #13294B;
+}
+
+.form-label {
+  display: inline-block;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #4B9CD3;
+}
+
+.form-input {
+  display: block;
+  padding-left: 10px;
+  border-radius: 2px;
+  height: 40px;
+  width: 70%;
+}
+
+.form-input::placeholder {
+  color: #595959;
+  font-size: 15px;
+}
+
+.form-input-btn {
+  width: 71.5%;
+  height: 50px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgb(75, 156, 211) 0%,
+    rgb(0, 0, 0) 100%
+  );
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.form-input-btn:hover {
+  cursor: pointer;
+  background: linear-gradient(
+    90deg,
+    rgb(75, 156, 211) 0%,
+    rgb(75, 156, 211) 100%
+  );
+  transition: all 0.4s ease-out;
+}
