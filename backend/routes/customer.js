@@ -39,9 +39,10 @@ router.get('/createOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.createOrder.call(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.getItemQuantities, { from: accts[req.body.user] })
+    console.log(req.body.itemQuantities)
+    await order.createOrder.call(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user] })
     .then(result =>{
-      order.createOrder(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.getItemQuantities, { from: accts[req.body.user] });
+      order.createOrder(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user] });
       return result;
     })
       .then(result => {
@@ -104,8 +105,9 @@ router.get('/getNotPickedUpOrders', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.getCustomerOrders.call({ from: accts[req.body.user] })
+    await order.getOwnOrders.call({ from: accts[req.body.user] })
       .then(result => {
+        console.log(result);
         res.status(200);
         res.send(result);
       })
