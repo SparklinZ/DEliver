@@ -19,6 +19,7 @@ contract Order {
         address rider;
         uint256 orderId;
         uint256 deliveryFee;
+        string deliveryAddress;
         string restaurant;
         // item name to quantity
         string[] itemNames;
@@ -49,7 +50,7 @@ contract Order {
     mapping(address => customer) public customers;
     mapping(address => rider) public riders;
     // orderID => Order struct
-    mapping(uint256 => order) public orders;
+    mapping(uint256 => order) private orders;
     // orderID => customer_token
     mapping(uint256 => uint256) private customerTokens;
 
@@ -135,6 +136,7 @@ contract Order {
                 address(0),
                 orderIDCounter,
                 _deliveryFee,
+                _deliveryAddress,
                 _restaurant,
                 _itemNames,
                 _itemQuantities,
@@ -184,7 +186,12 @@ contract Order {
         }
     }
 
-    function getOwnOrders() public view customerOnly returns (order[] memory filteredOrders) {
+    function getOwnOrders()
+        public
+        view
+        customerOnly
+        returns (order[] memory filteredOrders)
+    {
         order[] memory ordersTemp = new order[](orderIDCounter - 1);
         uint256 count;
         for (uint256 i = 1; i < orderIDCounter; i++) {
@@ -198,6 +205,19 @@ contract Order {
             filteredOrders[i] = ordersTemp[i];
         }
         return filteredOrders;
+    }
+
+    function getOrderToken(uint256 orderId)
+        public
+        view
+        ownOrderOnly(orderId)
+        returns (order memory, uint256)
+    {
+        require(
+            orders[orderId].rider != address(0),
+            "Order not picked up yet, no token generated"
+        );
+        return (orders[orderId], customerTokens[orderId]);
     }
 
     function fileComplaint(string memory _complaint, uint256 _orderId)
@@ -248,11 +268,58 @@ contract Order {
         return ("Successfully Filed Complaint");
     }
 
+    function getConflicts()
+        public
+        view
+        registeredUserOnly
+        returns (
+            order[] memory filteredOrders,
+            string[] memory filteredCustComplaints,
+            string[] memory filteredRiderComplaints
+        )
+    {
+        order[] memory ordersTemp = new order[](orderIDCounter - 1);
+        string[] memory customerComplaints = new string[](orderIDCounter - 1);
+        string[] memory riderComplaints = new string[](orderIDCounter - 1);
+        uint256 count;
+        for (uint256 i = 1; i < orderIDCounter; i++) {
+            if (
+                orders[i].customer != msg.sender &&
+                orders[i].rider != msg.sender &&
+                conflicts[i].votingNeeded &&
+                !conflicts[i].voted[msg.sender]
+            ) {
+                ordersTemp[count] = orders[i];
+                customerComplaints[count] = conflicts[i].customerComplaint;
+                riderComplaints[count] = conflicts[i].riderComplaint;
+                count += 1;
+            }
+        }
+        filteredOrders = new order[](count);
+        filteredCustComplaints = new string[](count);
+        filteredRiderComplaints = new string[](count);
+        for (uint256 i = 0; i < count; i++) {
+            filteredOrders[i] = ordersTemp[i];
+            filteredCustComplaints[i] = customerComplaints[i];
+            filteredRiderComplaints[i] = riderComplaints[i];
+        }
+        return (
+            filteredOrders,
+            filteredCustComplaints,
+            filteredRiderComplaints
+        );
+    }
+
     function voteConflict(
         //true for customer, false for rider
         bool _vote,
         uint256 _orderId
     ) public registeredUserOnly returns (string memory) {
+        require(
+            orders[_orderId].customer != msg.sender &&
+                orders[_orderId].rider != msg.sender,
+            "Cannot vote for own complaint"
+        );
         require(
             conflicts[_orderId].votingNeeded,
             "Voting not required for OrderId"
