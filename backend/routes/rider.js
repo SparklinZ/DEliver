@@ -7,11 +7,6 @@ var orderJson = require("../../truffle_project/build/contracts/Order.json")
 var Order = truffleContract(orderJson)
 Order.setProvider(web3.currentProvider)
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
 //req.body user 1-10
 router.get('/addRider', async function (req, res, next) {
   var order = await Order.deployed();
@@ -20,8 +15,8 @@ router.get('/addRider', async function (req, res, next) {
     await order.addRider.call({ from: accts[req.body.user] })
       .then((_result) => {
         if (_result == accts[req.body.user]) {
-          await order.addRider({ from: accts[req.body.user] })
-          return result
+          order.addRider({ from: accts[req.body.user] });
+          return _result;
         }
       }).then(result => {
         res.status(200);
