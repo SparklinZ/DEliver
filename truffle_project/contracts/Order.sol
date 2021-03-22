@@ -78,6 +78,11 @@ contract Order {
         _;
     }
 
+    modifier riderOnly() {
+        require(riders[msg.sender].exist, "Rider only");
+        _;
+    }
+
     modifier resolveConflict() {
         // + 86400
         if(now >= nextResolveTime){
@@ -206,5 +211,19 @@ contract Order {
             conflicts[_orderId].riderVotes++;
         }
         return ("Successfully Voted");
+    }
+
+    //Riders pick up order
+    function pickupOrder(uint256 orderId) public riderOnly() {
+        require(orders[orderId].rider == address(0), "Order already picked up by another rider");
+        orders[orderId].rider = msg.sender;
+    }
+
+    //Customer accepts order
+
+    //Riders delivered order
+    function deliveredOrder(int256 orderId, uint256 customerToken) public riderOnly() {
+        require(customerTokens[orderId] == customerToken, "Invalid Customer Token");
+        orders[orderId].delivered = true;
     }
 }
