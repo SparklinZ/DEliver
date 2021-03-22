@@ -352,7 +352,7 @@ contract Order {
     //Customer accepts order
 
     //Riders delivered order
-    function deliveredOrder(int256 orderId, uint256 customerToken) public riderOnly() {
+    function deliveredOrder(uint256 orderId, uint256 customerToken) public riderOnly() {
         require(customerTokens[orderId] == customerToken, "Invalid Customer Token");
         orders[orderId].delivered = true;
     }
