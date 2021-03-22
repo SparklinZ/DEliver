@@ -191,6 +191,28 @@ contract Order {
         }
     }
 
+    //For riders to get all orders currently not taken
+    function getOrders()
+        public
+        view
+        customerOnly
+        returns (order[] memory filteredOrders)
+    {
+        order[] memory ordersTemp = new order[](orderIDCounter - 1);
+        uint256 count;
+        for (uint256 i = 1; i < orderIDCounter; i++) {
+            if (orders[i].rider == address(0)) {
+                ordersTemp[count] = orders[i];
+                count += 1;
+            }
+        }
+        filteredOrders = new order[](count);
+        for (uint256 i = 0; i < count; i++) {
+            filteredOrders[i] = ordersTemp[i];
+        }
+        return filteredOrders;
+    }
+
     function getOwnOrders()
         public
         view
