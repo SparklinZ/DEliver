@@ -187,7 +187,7 @@ contract Order {
     function getOwnOrders() public view customerOnly returns (order[] memory filteredOrders) {
         order[] memory ordersTemp = new order[](orderIDCounter - 1);
         uint256 count;
-        for (uint256 i = 0; i < orderIDCounter - 1; i++) {
+        for (uint256 i = 1; i < orderIDCounter; i++) {
             if (orders[i].customer == msg.sender) {
                 ordersTemp[count] = orders[i];
                 count += 1;
