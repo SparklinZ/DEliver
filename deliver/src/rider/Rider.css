@@ -1,0 +1,36 @@
+.riderApp {
+  display: inline-block;
+}
+
+.riderApp header {
+  background: #518ce4;
+  color: #fff;
+  padding: 10px 20px;
+}
+
+.title {
+  font-size: 5rem;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  color: #518ce4;
+}
+
+.riderApp button {
+  padding: 5px 20px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgb(75, 156, 211) 0%, rgb(0, 0, 0) 100%);
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.riderApp button:hover {
+  cursor: pointer;
+  background: linear-gradient(
+    90deg,
+    rgb(75, 156, 211) 0%,
+    rgb(75, 156, 211) 100%
+  );
+  transition: all 0.4s ease-out;
+}
