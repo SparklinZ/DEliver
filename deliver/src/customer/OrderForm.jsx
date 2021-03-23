@@ -6,6 +6,7 @@ class OrderForm extends Component {
     constructor() {
         super()
         this.state = {
+                        TotalAmountFood: '',
                         DeliverAddress: '',
                         RestaurantName: '',
                         FeesOffered: '',
@@ -59,7 +60,6 @@ class OrderForm extends Component {
         else {
             var newArrayOrderItem = Array.from(this.state.OrderItem);
             newArrayOrderItem[this.state.ItemIndex] = this.state.tempItem
-            console.log(newArrayOrderItem)
             var newArrayOrderQuantity = Array.from(this.state.Quantity);
             newArrayOrderQuantity[this.state.ItemIndex] = this.state.tempQuantity
 
@@ -77,18 +77,25 @@ class OrderForm extends Component {
     }
 
     handleResetItemList(event) {
-        alert('Resetting item list');
+        alert('Reset item list');
+        this.setState({
+            OrderItem: [],
+            Quantity: [],
+            ItemIndex: 0
+        }, () => {
+            console.log(this.state)
+        })
         event.preventDefault();
     }
 
-//     handleValidation(){
-//         let fields = this.state.fields;
-//         let errors = {};
-//         let formIsValid = true;
-//
-//         if (!fields[''])
-//
-//     }
+    // handleValidation(){
+    //     let fields = this.state.fields;
+    //     let errors = {};
+    //     let formIsValid = true;
+
+    //     if (!fields[''])
+
+    // }
 
 
     render() {
@@ -97,7 +104,8 @@ class OrderForm extends Component {
             <div>
                 <form className='form' style={{width: '50%', float:'right'}}>
                     <h1>Submit Order</h1>
-                    <nav>
+                    <h3 style={{fontSize:'20px', marginBottom:'0px', marginRight:'35%', textAlign:'center'}}>Delivering</h3>
+                    <nav className='addItemFormNav'>
                         <ul className='itemList'>
                             {
                                 this.state.OrderItem.map((item, index) => 
@@ -136,6 +144,9 @@ class OrderForm extends Component {
 
                 <form className='form' style={{width: '50%', float:'right'}}>
                     <div className='form=inputs'>
+                        <label className='form-label'>Total Amount For Food</label>
+                        <input className='form-input' type='number' step='0.50' min='0' name='TotalAmountFood' placeholder='Enter total amount for all food items above' value={this.state.TotalAmountFood} onChange={this.handleChange}/>
+
                         <label className='form-label'>Delivery Address</label>
                         <input className='form-input' type='text' name='DeliverAddress' placeholder='Enter your address' value={this.state.DeliverAddress} onChange={this.handleChange}/>
 
