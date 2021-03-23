@@ -47,9 +47,8 @@ class OrderList extends Component{
                             <form id={x.id}>                        
                                 <input placeholder={x.FeesOffered} style={{width: "15%", marginBottom:"2px", marginRight:'2.5px', textAlign:'right'}}/>
                             </form>
-                            <button className='editFeesButton'>Edit Fees</button>
+                            <button className='editFeesButton' style={{width:"100px"}}>Edit Fees</button>
                             <button className='deleteOrderButton'>Delete</button>
-
                         </li>)
                     }
                     </ul>
