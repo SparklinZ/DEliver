@@ -3,8 +3,8 @@ import './OrderForm.css'
 // import ReactScrollableList from 'react-scrollable-list';
 
 class OrderForm extends Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
         this.state = {
                         TotalAmountFood: '',
                         DeliverAddress: '',
@@ -15,11 +15,13 @@ class OrderForm extends Component {
                         tempQuantity: '1',
                         OrderItem: [],
                         Quantity: [],
+                        AccountNumber: this.props.AccountNumber
                     };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleAddNewItem = this.handleAddNewItem.bind(this);
-        // this.handleResetItemList = this.handleResetItemList.bind(this);
+        this.handleResetItemList = this.handleResetItemList.bind(this);
+        console.log(this.state)
     }
 
     handleChange(event){
