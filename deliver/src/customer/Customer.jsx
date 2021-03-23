@@ -9,7 +9,8 @@ class Customer extends Component {
 
     render() {
         return (
-            <div className='customerApp' style={{width:'100%'}}>
+            <div className='customerApp' style={{width:'100%', display: "inline-block"}}>
+                <header style={{ background: '#4B9CD3', color: '#fff', padding: '10px 20px' }}> DEliver | Receiver </header>
                 <OrderList/>
                 <OrderForm/>
             </div>
