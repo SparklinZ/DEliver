@@ -17,6 +17,10 @@ ul {
     justify-content: right;
     list-style-type: none;
     width: 80%;
+    overflow-y: scroll;
+    border:1px solid #13294B;
+    margin-left: 10%;
+
 }
 
 h3 {
@@ -25,7 +29,6 @@ h3 {
 
 li p {
     font: 200 0.8rem Georgia, Times New Roman, serif;
-    with: 70%
 }
 
 li {

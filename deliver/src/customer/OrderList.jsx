@@ -17,7 +17,6 @@ class OrderList extends Component{
 
             <div className='orders' style={{width: '50%', float:'left'}}>
                 <h1>All orders</h1>
-
                 <ul>
                 {
                     this.state['orders'].map(x => <li>
