@@ -4,31 +4,35 @@ import './ActiveOrderList.css'
 class ActiveOrderList extends Component{
     constructor(){
         super()
-        {/**call lists and created orders**/}
+        /**call lists and created orders**/
         this.state = {
             orders:[
-                {DeliveryAddress: 'National University of Singapore', RestaurantName: 'KFC', FeesOffered: 3},
-                {DeliveryAddress: 'Changi Airport', RestaurantName: 'Ding TaiFung', FeesOffered: 3},
-                {DeliveryAddress: 'Changi Airport', RestaurantName: 'McDonalds', FeesOffered: 6},
-                {DeliveryAddress: 'National University of Singapore', RestaurantName: 'Subway', FeesOffered: 8},
+                {id: '1', DeliveryAddress: 'National University of Singapore', RestaurantName: 'KFC', FeesOffered: 3, items: ['a', 'b', 'c'], itemNum: [1,2,3]},
+                {id: '4', DeliveryAddress: 'Changi Airport', RestaurantName: 'McDonalds', FeesOffered: 5, items: ['K', 'da', 'sd'], itemNum: [1,2,3]},
+                {id: '5', DeliveryAddress: 'Changi Airport', RestaurantName: 'McDonalds', FeesOffered: 5, items: ['K', 'da', 'sd'], itemNum: [1,2,3]}
             ]
         }
+    }
+
+    handlePickUp(id){
+        alert("Accepted Order (ID:" + id + "). Please complete the delivery in an hour.");
+        // call pickupOrder(id);
+        /** call backend pickUpOrder and submit with orderID **/
     }
 
     render(){
         return(
             <div className='activeOrders'>
-                <h1> Active Orders</h1>
+                <h1> All Active Orders </h1>
                 <ul> 
-                {/**ADD IN ORDERS GET**/}
                 {
                     this.state['orders'].map(x => 
                     <li>
                      <h3> {x.RestaurantName} </h3>
                      <p> {x.DeliveryAddress} </p>
+                     <p> Items: {x.items.join(', ')} ...</p>
                      <p> Delivery Fee:  {x.FeesOffered} </p>
-                     {/**ON CLICK --> call pick up order and should be removed from main list**/}
-                    <button type="button" >Pick Up</button>
+                    <button type="button" onClick={() => this.handlePickUp(x.id)}> Pick Up </button>
                     </li>)
                 }
                 </ul>

@@ -4,23 +4,24 @@ import './RiderOrderList.css'
 class RiderOrderList extends Component{
     constructor(){
         super()
-         {/**call lists and created orders**/}
+        /**call lists and created orders**/
         this.state = {
             orders:[
-                {DeliveryAddress: 'National University of Singapore', 
-                RestaurantName: 'KFC', 
-                FeesOffered: 3},
-                {DeliveryAddress: 'Changi Airport', 
-                RestaurantName: 'Ding TaiFung', 
-                FeesOffered: 3}
+                {id: '3', DeliveryAddress: 'Changi Airport', RestaurantName: 'Ding TaiFung', FeesOffered: 5, items: ['K', 'da', 'sd']},
             ]
         }
     }
 
-    handleDelivered(event){
+    handleDelivered(id){
         const token = prompt('Please enter customer token for verification.');
-        token.preventDefault();
-        /**call backend!!!!**/
+        // call deliveredOrder(id, token);
+        /** call backend deliveredOrder and submit with orderID and token **/
+        //const successful = true;
+        if (token) {
+            alert("Delivery Successful.");
+        } else {
+            alert("Invalid Customer Token.");
+        }
     }
 
     render(){
@@ -33,8 +34,9 @@ class RiderOrderList extends Component{
                     <li>
                      <h3> {x.RestaurantName} </h3>
                      <p> {x.DeliveryAddress} </p>
+                     <p> Items: {x.items.join(', ')} ...</p>
                      <p> Delivery Fee:  {x.FeesOffered} </p>
-                     <button type="button" onClick={this.handleDelivered}> Delivered </button>
+                     <button type="button" onClick={() => this.handleDelivered(x.id)}> Delivered </button>
                     </li>)
                 }
                 </ul>
