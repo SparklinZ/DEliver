@@ -8,7 +8,7 @@ var Order = truffleContract(orderJson)
 Order.setProvider(web3.currentProvider)
 
 //req.body user 1-10
-router.get('/addRider', async function (req, res, next) {
+router.post('/addRider', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
@@ -28,7 +28,7 @@ router.get('/addRider', async function (req, res, next) {
   }
 });
 
-router.get('/getOrders', async function (req, res, next) {
+router.post('/getOrders', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   var orderItem, holder;
