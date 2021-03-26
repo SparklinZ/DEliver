@@ -122,6 +122,10 @@ contract Order {
         return (msg.sender);
     }
 
+    function isCustomer() public view registeredUserOnly() returns (bool) {
+        return customers[msg.sender.exist];
+    }
+
     function createOrder(
         string memory _restaurant,
         uint256 _deliveryFee,
@@ -369,8 +373,6 @@ contract Order {
         require(orders[orderId].rider == address(0), "Order already picked up by another rider");
         orders[orderId].rider = msg.sender;
     }
-
-    //Customer accepts order
 
     //Riders delivered order
     function deliveredOrder(uint256 orderId, uint256 customerToken) public riderOnly() {
