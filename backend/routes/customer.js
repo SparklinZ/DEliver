@@ -33,9 +33,9 @@ router.get('/createOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.createOrder.call(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user] })
+    await order.createOrder.call(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user], value: req.body.deliveryFee })
       .then(result => {
-        order.createOrder(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user] });
+        order.createOrder(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user], value: req.body.deliveryFee });
         return result;
       })
       .then(result => {
@@ -52,7 +52,7 @@ router.get('/updateOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.updateOrder(req.body.orderId, { from: accts[req.body.user] })
+    await order.updateOrder(req.body.orderId, { from: accts[req.body.user], value: req.body.deliveryFee})
       .then(result => {
         res.status(200);
         res.send(result);

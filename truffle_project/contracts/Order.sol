@@ -1,6 +1,5 @@
 pragma experimental ABIEncoderV2;
 pragma solidity ^0.5.0;
-import "./ERC20.sol";
 
 contract Order {
     struct customer {
@@ -54,11 +53,9 @@ contract Order {
     // orderID => customer_token
     mapping(uint256 => uint256) private customerTokens;
 
-    ERC20 erc20;
     uint256 orderIDCounter = 1;
 
-    constructor(ERC20 erc20address) public {
-        erc20 = erc20address;
+    constructor() public {
     }
 
     modifier customerOnly() {
@@ -124,11 +121,10 @@ contract Order {
 
     function createOrder(
         string memory _restaurant,
-        uint256 _deliveryFee,
         string memory _deliveryAddress,
         string[] memory _itemNames,
         uint256[] memory _itemQuantities
-    ) public customerOnly returns (uint256) {
+    ) public payable customerOnly returns (uint256) {
         require(
             _itemNames.length == _itemQuantities.length,
             "itemNames and itemQuantities not of same length"
@@ -140,7 +136,7 @@ contract Order {
                 msg.sender,
                 address(0),
                 orderIDCounter,
-                _deliveryFee,
+                msg.value,
                 _deliveryAddress,
                 _restaurant,
                 _itemNames,
@@ -158,13 +154,14 @@ contract Order {
 
     //update order deliveryFee
     function updateOrder(uint256 orderId, uint256 _deliveryFee)
-        public
+        public payable
         ownOrderOnly(orderId)
     {
         require(
             orders[orderId].rider == address(0),
             "Already picked up by rider"
         );
+        msg.sender.transfer(orders[orderId].deliveryFee);
         orders[orderId].deliveryFee = _deliveryFee;
     }
 
@@ -174,6 +171,7 @@ contract Order {
             orders[orderId].rider == address(0),
             "Already picked up by rider"
         );
+        msg.sender.transfer(orders[orderId].deliveryFee);
         delete orders[orderId];
     }
 
@@ -375,6 +373,7 @@ contract Order {
     //Riders delivered order
     function deliveredOrder(uint256 orderId, uint256 customerToken) public riderOnly() {
         require(customerTokens[orderId] == customerToken, "Invalid Customer Token");
+        msg.sender.transfer(orders[orderId].deliveryFee);
         orders[orderId].delivered = true;
     }
 }
