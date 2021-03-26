@@ -7,7 +7,7 @@ var cors = require('cors')
 
 var indexRouter = require('./routes/index');
 var customerRouter = require('./routes/customer');
-var riderRouter = require('./routes/customer');
+var riderRouter = require('./routes/rider');
 var votingRouter = require('./routes/voting');
 
 var app = express();
