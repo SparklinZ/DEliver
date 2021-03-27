@@ -3,14 +3,19 @@ pragma solidity ^0.5.0;
 
 contract Order {
     struct customer {
-        uint8 rating;
+        uint256 complained;
+        uint256 conflictWin;
+        uint256 conflictLoss;
+        uint256 successful;
         string deliveryAddress;
-        string pubKey;
         bool exist;
     }
 
     struct rider {
-        uint8 rating;
+        uint256 complained;
+        uint256 conflictWin;
+        uint256 conflictLoss;
+        uint256 successful;
         bool exist;
     }
 
@@ -25,7 +30,9 @@ contract Order {
         string[] itemNames;
         uint256[] itemQuantities;
         bool delivered;
+        bool received;
         uint256 orderTime;
+        uint256 deliveredTime;
     }
 
     struct conflict {
@@ -51,14 +58,12 @@ contract Order {
     mapping(address => rider) private riders;
     // orderID => Order struct
     mapping(uint256 => order) private orders;
-    // orderID => customer_token
-    mapping(uint256 => uint256) private customerTokens;
 
     uint256 orderIDCounter = 1;
-    string verificationMsg = 'ABCDEFG' private;
 
-    constructor() public {
-    }
+    uint256[] deliveredNotReceived;
+
+    constructor() public {}
 
     modifier customerOnly() {
         require(customers[msg.sender].exist, "Customer only");
@@ -94,13 +99,18 @@ contract Order {
                 conflicts[nextResolveOrderId].riderVotes
             ) {
                 //transfer money to customer
+                address payable _customer = address(uint160(orders[nextResolveOrderId].customer));
+                _customer.transfer(orders[nextResolveOrderId].deliveryFee);
             } else {
                 //transfer money to rider
+                address payable _rider = address(uint160(orders[nextResolveOrderId].rider));
+                _rider.transfer(orders[nextResolveOrderId].deliveryFee);
             }
             conflicts[nextResolveOrderId].resolved = true;
             conflicts[nextResolveOrderId].votingNeeded = false;
             //find the next conflict that requires resolution and update the nextResolveOrderId and nextResolveTime
             //remember to + 86400 to the update time of the nextResolve conflict as it is one day
+            
         }
 
         _;
@@ -110,13 +120,14 @@ contract Order {
         public
         returns (address)
     {
-        customer memory newCustomer = customer(0, customerAddress, true);
+        customer memory newCustomer =
+            customer(0, 0, 0, 0, customerAddress, true);
         customers[msg.sender] = newCustomer;
         return (msg.sender);
     }
 
     function addRider() public returns (address) {
-        rider memory newRider = rider(0, true);
+        rider memory newRider = rider(0, 0, 0, 0, true);
         riders[msg.sender] = newRider;
         return (msg.sender);
     }
@@ -144,7 +155,9 @@ contract Order {
                 _itemNames,
                 _itemQuantities,
                 false,
-                now
+                false,
+                now,
+                0
             );
         orders[orderIDCounter] = newOrder;
         orderIDCounter++;
@@ -156,7 +169,8 @@ contract Order {
 
     //update order deliveryFee
     function updateOrder(uint256 orderId, uint256 _deliveryFee)
-        public payable
+        public
+        payable
         ownOrderOnly(orderId)
     {
         require(
@@ -234,19 +248,6 @@ contract Order {
         return filteredOrders;
     }
 
-    function getOrderToken(uint256 orderId)
-        public
-        view
-        ownOrderOnly(orderId)
-        returns (order memory, uint256)
-    {
-        require(
-            orders[orderId].rider != address(0),
-            "Order not picked up yet, no token generated"
-        );
-        return (orders[orderId], customerTokens[orderId]);
-    }
-
     function fileComplaint(string memory _complaint, uint256 _orderId)
         public
         registeredUserOnly
@@ -288,6 +289,10 @@ contract Order {
             bytes(conflicts[_orderId].riderComplaint).length != 0
         ) {
             _conflict.votingNeeded = true;
+            if (nextResolveTime == 0) {
+                nextResolveOrderId = _orderId;
+                nextResolveTime = _conflict.updateTime + 86400;
+            }
         } else {
             _conflict.votingNeeded = false;
         }
@@ -355,7 +360,7 @@ contract Order {
             !conflicts[_orderId].voted[msg.sender],
             "You have already voted"
         );
-        
+
         if (_vote) {
             conflicts[_orderId].customerVotes++;
         } else if (!_vote) {
@@ -366,16 +371,37 @@ contract Order {
 
     //Riders pick up order
     function pickupOrder(uint256 orderId) public riderOnly() {
-        require(orders[orderId].rider == address(0), "Order already picked up by another rider");
+        require(
+            orders[orderId].rider == address(0),
+            "Order already picked up by another rider"
+        );
         orders[orderId].rider = msg.sender;
     }
 
-    //Customer accepts order
+    //Customer receives order
+    function receiveOrder(uint256 orderId) public customerOnly() {
+        require(orders[orderId].received == false, "Already received");
+        receivedOrder(orderId);
+    }
+
+    //Received Order, update order and ives payment, called by receivedOrder and time based
+    function receivedOrder(uint256 orderId) private {
+        msg.sender.transfer(orders[orderId].deliveryFee);
+        orders[orderId].received = true;
+        orders[orderId].delivered = true;
+        customers[orders[orderId].customer].successful++;
+        riders[orders[orderId].rider].successful++;
+    }
 
     //Riders delivered order
-    function deliveredOrder(uint256 orderId, uint256 customerToken) public riderOnly() {
-        require(customerTokens[orderId] == customerToken, "Invalid Customer Token");
-        msg.sender.transfer(orders[orderId].deliveryFee);
+    function deliveredOrder(uint256 orderId) public riderOnly() {
+        require(
+            orders[orderId].delivered == false &&
+                orders[orderId].received == false,
+            "Already delivered"
+        );
         orders[orderId].delivered = true;
+        orders[orderId].deliveredTime = now;
+        deliveredNotReceived.push(orderId);
     }
 }
