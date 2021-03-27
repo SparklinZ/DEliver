@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 
 contract Order {
     struct customer {
-        uint256 complained;
+        uint256 complaints;
         uint256 conflictWin;
         uint256 conflictLoss;
         uint256 successful;
@@ -12,7 +12,7 @@ contract Order {
     }
 
     struct rider {
-        uint256 complained;
+        uint256 complaints;
         uint256 conflictWin;
         uint256 conflictLoss;
         uint256 successful;
@@ -30,12 +30,12 @@ contract Order {
         string[] itemNames;
         uint256[] itemQuantities;
         bool delivered;
-        bool received;
         uint256 orderTime;
         uint256 deliveredTime;
     }
 
     struct conflict {
+        bool exist;
         string customerComplaint;
         string riderComplaint;
         bool votingNeeded;
@@ -52,6 +52,9 @@ contract Order {
     // Time and orderId to resolve next conflict
     uint256 nextResolveTime;
     uint256 nextResolveOrderId;
+
+    //uncomplete
+
     // orderID => Conflict struct
     mapping(uint256 => conflict) private conflicts;
     mapping(address => customer) private customers;
@@ -60,8 +63,6 @@ contract Order {
     mapping(uint256 => order) private orders;
 
     uint256 orderIDCounter = 1;
-
-    uint256[] deliveredNotReceived;
 
     constructor() public {}
 
@@ -94,25 +95,60 @@ contract Order {
     modifier resolveConflict() {
         // + 86400
         if (now >= nextResolveTime) {
-            if (
-                conflicts[nextResolveOrderId].customerVotes >=
-                conflicts[nextResolveOrderId].riderVotes
-            ) {
-                //transfer money to customer
-                address payable _customer = address(uint160(orders[nextResolveOrderId].customer));
-                _customer.transfer(orders[nextResolveOrderId].deliveryFee);
-            } else {
-                //transfer money to rider
-                address payable _rider = address(uint160(orders[nextResolveOrderId].rider));
-                _rider.transfer(orders[nextResolveOrderId].deliveryFee);
+            if (!conflicts[nextResolveOrderId].votingNeeded) {
+                if (
+                    bytes(conflicts[nextResolveOrderId].customerComplaint)
+                        .length == 0
+                ) {
+                    address payable _rider =
+                        address(uint160(orders[nextResolveOrderId].rider));
+                    _rider.transfer(orders[nextResolveOrderId].deliveryFee);
+                    customers[orders[nextResolveOrderId].customer].complaints++;
+                } else if (
+                    bytes(conflicts[nextResolveOrderId].riderComplaint)
+                        .length == 0
+                ) {
+                    //transfer money to customer
+                    address payable _customer =
+                        address(uint160(orders[nextResolveOrderId].customer));
+                    _customer.transfer(orders[nextResolveOrderId].deliveryFee);
+                    riders[orders[nextResolveOrderId].rider].complaints++;
+                }
+            } else if (conflicts[nextResolveOrderId].votingNeeded) {
+                if (
+                    conflicts[nextResolveOrderId].customerVotes >=
+                    conflicts[nextResolveOrderId].riderVotes
+                ) {
+                    //transfer money to customer
+                    address payable _customer =
+                        address(uint160(orders[nextResolveOrderId].customer));
+                    _customer.transfer(orders[nextResolveOrderId].deliveryFee);
+                    riders[orders[nextResolveOrderId].rider].conflictLoss++;
+                    customers[orders[nextResolveOrderId].customer]
+                        .conflictWin++;
+                } else {
+                    //transfer money to rider
+                    address payable _rider =
+                        address(uint160(orders[nextResolveOrderId].rider));
+                    _rider.transfer(orders[nextResolveOrderId].deliveryFee);
+                    riders[orders[nextResolveOrderId].rider].conflictWin++;
+                    customers[orders[nextResolveOrderId].customer]
+                        .conflictLoss++;
+                }
             }
             conflicts[nextResolveOrderId].resolved = true;
             conflicts[nextResolveOrderId].votingNeeded = false;
             //find the next conflict that requires resolution and update the nextResolveOrderId and nextResolveTime
             //remember to + 86400 to the update time of the nextResolve conflict as it is one day
-            
+            nextResolveOrderId = 0;
+            for (uint256 i = 1; i < orderIDCounter; i++) {
+                if (conflicts[i].votingNeeded && !conflicts[i].resolved) {
+                    nextResolveOrderId = i;
+                    nextResolveTime = conflicts[i].updateTime + 86400;
+                    break;
+                }
+            }
         }
-
         _;
     }
 
@@ -155,7 +191,6 @@ contract Order {
                 _itemNames,
                 _itemQuantities,
                 false,
-                false,
                 now,
                 0
             );
@@ -168,17 +203,13 @@ contract Order {
     }
 
     //update order deliveryFee
-    function updateOrder(uint256 orderId, uint256 _deliveryFee)
-        public
-        payable
-        ownOrderOnly(orderId)
-    {
+    function updateOrder(uint256 orderId) public payable ownOrderOnly(orderId) {
         require(
             orders[orderId].rider == address(0),
             "Already picked up by rider"
         );
         msg.sender.transfer(orders[orderId].deliveryFee);
-        orders[orderId].deliveryFee = _deliveryFee;
+        orders[orderId].deliveryFee = msg.value;
     }
 
     //delete order
@@ -209,7 +240,7 @@ contract Order {
     function getOrders()
         public
         view
-        customerOnly
+        riderOnly
         returns (order[] memory filteredOrders)
     {
         order[] memory ordersTemp = new order[](orderIDCounter - 1);
@@ -248,6 +279,27 @@ contract Order {
         return filteredOrders;
     }
 
+    function getOwnOrdersRider()
+        public
+        view
+        riderOnly
+        returns (order[] memory filteredOrders)
+    {
+        order[] memory ordersTemp = new order[](orderIDCounter - 1);
+        uint256 count;
+        for (uint256 i = 1; i < orderIDCounter; i++) {
+            if (orders[i].rider == msg.sender) {
+                ordersTemp[count] = orders[i];
+                count += 1;
+            }
+        }
+        filteredOrders = new order[](count);
+        for (uint256 i = 0; i < count; i++) {
+            filteredOrders[i] = ordersTemp[i];
+        }
+        return filteredOrders;
+    }
+
     function fileComplaint(string memory _complaint, uint256 _orderId)
         public
         registeredUserOnly
@@ -265,6 +317,7 @@ contract Order {
 
         //create conflict
         conflict storage _conflict = conflicts[_orderId];
+        _conflict.exist = true;
         if (orders[_orderId].customer == msg.sender) {
             require(
                 bytes(conflicts[_orderId].customerComplaint).length == 0,
@@ -289,7 +342,7 @@ contract Order {
             bytes(conflicts[_orderId].riderComplaint).length != 0
         ) {
             _conflict.votingNeeded = true;
-            if (nextResolveTime == 0) {
+            if (nextResolveOrderId == 0) {
                 nextResolveOrderId = _orderId;
                 nextResolveTime = _conflict.updateTime + 86400;
             }
@@ -379,29 +432,13 @@ contract Order {
     }
 
     //Customer receives order
-    function receiveOrder(uint256 orderId) public customerOnly() {
-        require(orders[orderId].received == false, "Already received");
-        receivedOrder(orderId);
-    }
-
-    //Received Order, update order and ives payment, called by receivedOrder and time based
-    function receivedOrder(uint256 orderId) private {
-        msg.sender.transfer(orders[orderId].deliveryFee);
-        orders[orderId].received = true;
+    function receivedOrder(uint256 orderId) public ownOrderOnly(orderId) {
+        require(orders[orderId].rider != address(0), "No rider");
+        require(orders[orderId].delivered == false, "Already received");
+        address payable _rider = address(uint160(orders[orderId].rider));
+        _rider.transfer(orders[orderId].deliveryFee);
         orders[orderId].delivered = true;
         customers[orders[orderId].customer].successful++;
         riders[orders[orderId].rider].successful++;
-    }
-
-    //Riders delivered order
-    function deliveredOrder(uint256 orderId) public riderOnly() {
-        require(
-            orders[orderId].delivered == false &&
-                orders[orderId].received == false,
-            "Already delivered"
-        );
-        orders[orderId].delivered = true;
-        orders[orderId].deliveredTime = now;
-        deliveredNotReceived.push(orderId);
     }
 }
