@@ -165,24 +165,11 @@ router.post('/getPickedUpOrders', async function (req, res, next) {
   }
 });
 
-router.post('/getOrderToken', async function (req, res, next) {
+router.post('/receivedOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.getOrderToken.call(req.body.orderId, { from: accts[req.body.user] })
-      .then(result => {
-        var orderItem = {};
-        orderItem.orderId = result[0].orderId;
-        orderItem.token = result[1];
-        orderItem.rider = result[0].rider;
-        orderItem.restaurant = result[0].restaurant;
-        orderItem.deliveryFee = result[0].deliveryFee;
-        orderItem.deliveryAddress = result[0].deliveryAddress;
-        orderItem.itemNames = result[0].itemNames;
-        orderItem.itemQuantities = result[0].itemQuantities;
-        orderItem.orderTime = result[0].orderTime;
-        return orderItem
-      })
+    await order.receivedOrder(req.body.orderId, { from: accts[req.body.user] })
       .then(result => {
         res.status(200);
         res.send(result);

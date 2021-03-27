@@ -1,17 +1,14 @@
 var Order = artifacts.require('./Order.sol');
-var ERC20 = artifacts.require("./ERC20.sol");
 const truffleAssert = require('truffle-assertions');
 
 contract('Order', function(accounts) {
   let orderInstance;
-  let erc20Instance;
   let platform = accounts[0]
   let customerAccount = accounts[1];
   let riderAccount = accounts[2];
 
   before(async () => {
-    erc20Instance = await ERC20.deployed(); 
-    orderInstance = await Order.new(erc20Instance.address,{
+    orderInstance = await Order.new({
         from: platform
     });
   });

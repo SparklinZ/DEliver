@@ -3,13 +3,19 @@ pragma solidity ^0.5.0;
 
 contract Order {
     struct customer {
-        uint8 rating;
+        uint256 complaints;
+        uint256 conflictWin;
+        uint256 conflictLoss;
+        uint256 successful;
         string deliveryAddress;
         bool exist;
     }
 
     struct rider {
-        uint8 rating;
+        uint256 complaints;
+        uint256 conflictWin;
+        uint256 conflictLoss;
+        uint256 successful;
         bool exist;
     }
 
@@ -25,9 +31,11 @@ contract Order {
         uint256[] itemQuantities;
         bool delivered;
         uint256 orderTime;
+        uint256 deliveredTime;
     }
 
     struct conflict {
+        bool exist;
         string customerComplaint;
         string riderComplaint;
         bool votingNeeded;
@@ -44,19 +52,19 @@ contract Order {
     // Time and orderId to resolve next conflict
     uint256 nextResolveTime;
     uint256 nextResolveOrderId;
+
+    //uncomplete
+
     // orderID => Conflict struct
-    mapping(uint256 => conflict) public conflicts;
-    mapping(address => customer) public customers;
-    mapping(address => rider) public riders;
+    mapping(uint256 => conflict) private conflicts;
+    mapping(address => customer) private customers;
+    mapping(address => rider) private riders;
     // orderID => Order struct
     mapping(uint256 => order) private orders;
-    // orderID => customer_token
-    mapping(uint256 => uint256) private customerTokens;
 
     uint256 orderIDCounter = 1;
 
-    constructor() public {
-    }
+    constructor() public {}
 
     modifier customerOnly() {
         require(customers[msg.sender].exist, "Customer only");
@@ -87,20 +95,60 @@ contract Order {
     modifier resolveConflict() {
         // + 86400
         if (now >= nextResolveTime) {
-            if (
-                conflicts[nextResolveOrderId].customerVotes >=
-                conflicts[nextResolveOrderId].riderVotes
-            ) {
-                //transfer money to customer
-            } else {
-                //transfer money to rider
+            if (!conflicts[nextResolveOrderId].votingNeeded) {
+                if (
+                    bytes(conflicts[nextResolveOrderId].customerComplaint)
+                        .length == 0
+                ) {
+                    address payable _rider =
+                        address(uint160(orders[nextResolveOrderId].rider));
+                    _rider.transfer(orders[nextResolveOrderId].deliveryFee);
+                    customers[orders[nextResolveOrderId].customer].complaints++;
+                } else if (
+                    bytes(conflicts[nextResolveOrderId].riderComplaint)
+                        .length == 0
+                ) {
+                    //transfer money to customer
+                    address payable _customer =
+                        address(uint160(orders[nextResolveOrderId].customer));
+                    _customer.transfer(orders[nextResolveOrderId].deliveryFee);
+                    riders[orders[nextResolveOrderId].rider].complaints++;
+                }
+            } else if (conflicts[nextResolveOrderId].votingNeeded) {
+                if (
+                    conflicts[nextResolveOrderId].customerVotes >=
+                    conflicts[nextResolveOrderId].riderVotes
+                ) {
+                    //transfer money to customer
+                    address payable _customer =
+                        address(uint160(orders[nextResolveOrderId].customer));
+                    _customer.transfer(orders[nextResolveOrderId].deliveryFee);
+                    riders[orders[nextResolveOrderId].rider].conflictLoss++;
+                    customers[orders[nextResolveOrderId].customer]
+                        .conflictWin++;
+                } else {
+                    //transfer money to rider
+                    address payable _rider =
+                        address(uint160(orders[nextResolveOrderId].rider));
+                    _rider.transfer(orders[nextResolveOrderId].deliveryFee);
+                    riders[orders[nextResolveOrderId].rider].conflictWin++;
+                    customers[orders[nextResolveOrderId].customer]
+                        .conflictLoss++;
+                }
             }
             conflicts[nextResolveOrderId].resolved = true;
             conflicts[nextResolveOrderId].votingNeeded = false;
             //find the next conflict that requires resolution and update the nextResolveOrderId and nextResolveTime
             //remember to + 86400 to the update time of the nextResolve conflict as it is one day
+            nextResolveOrderId = 0;
+            for (uint256 i = 1; i < orderIDCounter; i++) {
+                if (conflicts[i].votingNeeded && !conflicts[i].resolved) {
+                    nextResolveOrderId = i;
+                    nextResolveTime = conflicts[i].updateTime + 86400;
+                    break;
+                }
+            }
         }
-
         _;
     }
 
@@ -108,13 +156,14 @@ contract Order {
         public
         returns (address)
     {
-        customer memory newCustomer = customer(0, customerAddress, true);
+        customer memory newCustomer =
+            customer(0, 0, 0, 0, customerAddress, true);
         customers[msg.sender] = newCustomer;
         return (msg.sender);
     }
 
     function addRider() public returns (address) {
-        rider memory newRider = rider(0, true);
+        rider memory newRider = rider(0, 0, 0, 0, true);
         riders[msg.sender] = newRider;
         return (msg.sender);
     }
@@ -146,7 +195,8 @@ contract Order {
                 _itemNames,
                 _itemQuantities,
                 false,
-                now
+                now,
+                0
             );
         orders[orderIDCounter] = newOrder;
         orderIDCounter++;
@@ -157,16 +207,13 @@ contract Order {
     }
 
     //update order deliveryFee
-    function updateOrder(uint256 orderId, uint256 _deliveryFee)
-        public payable
-        ownOrderOnly(orderId)
-    {
+    function updateOrder(uint256 orderId) public payable ownOrderOnly(orderId) {
         require(
             orders[orderId].rider == address(0),
             "Already picked up by rider"
         );
         msg.sender.transfer(orders[orderId].deliveryFee);
-        orders[orderId].deliveryFee = _deliveryFee;
+        orders[orderId].deliveryFee = msg.value;
     }
 
     //delete order
@@ -197,7 +244,7 @@ contract Order {
     function getOrders()
         public
         view
-        customerOnly
+        riderOnly
         returns (order[] memory filteredOrders)
     {
         order[] memory ordersTemp = new order[](orderIDCounter - 1);
@@ -236,22 +283,30 @@ contract Order {
         return filteredOrders;
     }
 
-    function getOrderToken(uint256 orderId)
+    function getOwnOrdersRider()
         public
         view
-        ownOrderOnly(orderId)
-        returns (order memory, uint256)
+        riderOnly
+        returns (order[] memory filteredOrders)
     {
-        require(
-            orders[orderId].rider != address(0),
-            "Order not picked up yet, no token generated"
-        );
-        return (orders[orderId], customerTokens[orderId]);
+        order[] memory ordersTemp = new order[](orderIDCounter - 1);
+        uint256 count;
+        for (uint256 i = 1; i < orderIDCounter; i++) {
+            if (orders[i].rider == msg.sender) {
+                ordersTemp[count] = orders[i];
+                count += 1;
+            }
+        }
+        filteredOrders = new order[](count);
+        for (uint256 i = 0; i < count; i++) {
+            filteredOrders[i] = ordersTemp[i];
+        }
+        return filteredOrders;
     }
 
     function fileComplaint(string memory _complaint, uint256 _orderId)
         public
-        registeredUserOnly
+        registeredUserOnly()
         returns (string memory)
     {
         require(
@@ -261,39 +316,49 @@ contract Order {
         );
         require(
             !orders[_orderId].delivered,
-            "Delievery has already been confirmed by both rider and customer, complaint can no longer be filed"
+            "Delivery has already been confirmed by both rider and customer, complaint can no longer be filed"
         );
-
-        //create conflict
-        conflict storage _conflict = conflicts[_orderId];
-        if (orders[_orderId].customer == msg.sender) {
-            require(
-                bytes(conflicts[_orderId].customerComplaint).length == 0,
-                "You have already filed and recorded your complaint"
-            );
-            _conflict.customerComplaint = _complaint;
-            _conflict.riderComplaint = "";
-        } else if (orders[_orderId].rider == msg.sender) {
-            require(
-                bytes(conflicts[_orderId].riderComplaint).length == 0,
-                "You have already filed and recorded your complaint"
-            );
-            _conflict.riderComplaint = _complaint;
-            _conflict.customerComplaint = "";
+        
+        if (!conflicts[_orderId].exist) {
+            //create conflict
+            conflict memory _conflict =
+                conflict(true, "", "", false, 0, 0, now, false);
+            if (orders[_orderId].customer == msg.sender) {
+                require(
+                    bytes(conflicts[_orderId].customerComplaint).length == 0,
+                    "You have already filed and recorded your complaint"
+                );
+                _conflict.customerComplaint = _complaint;
+            } else if (orders[_orderId].rider == msg.sender) {
+                require(
+                    bytes(conflicts[_orderId].riderComplaint).length == 0,
+                    "You have already filed and recorded your complaint"
+                );
+                _conflict.riderComplaint = _complaint;
+            }
+            conflicts[_orderId] = _conflict;
+        }else if(conflicts[_orderId].exist){
+            require(!conflicts[_orderId].votingNeeded, "You have already filed your complaint");
+            if (orders[_orderId].customer == msg.sender) {
+                require(
+                    bytes(conflicts[_orderId].customerComplaint).length == 0,
+                    "You have already filed and recorded your complaint"
+                );
+                conflicts[_orderId].customerComplaint = _complaint;
+            } else if (orders[_orderId].rider == msg.sender) {
+                require(
+                    bytes(conflicts[_orderId].riderComplaint).length == 0,
+                    "You have already filed and recorded your complaint"
+                );
+                conflicts[_orderId].riderComplaint = _complaint;
+            }
+            conflicts[_orderId].votingNeeded = true;
+            conflicts[_orderId].updateTime = now;
+            if (nextResolveOrderId == 0) {
+                nextResolveOrderId = _orderId;
+                nextResolveTime = conflicts[_orderId].updateTime + 86400;
+            }
         }
-        _conflict.customerVotes = 0;
-        _conflict.riderVotes = 0;
-        _conflict.updateTime = now;
-        _conflict.resolved = false;
-        if (
-            bytes(conflicts[_orderId].customerComplaint).length != 0 &&
-            bytes(conflicts[_orderId].riderComplaint).length != 0
-        ) {
-            _conflict.votingNeeded = true;
-        } else {
-            _conflict.votingNeeded = false;
-        }
-
         return ("Successfully Filed Complaint");
     }
 
@@ -304,12 +369,14 @@ contract Order {
         returns (
             order[] memory filteredOrders,
             string[] memory filteredCustComplaints,
-            string[] memory filteredRiderComplaints
+            string[] memory filteredRiderComplaints,
+            uint256[] memory filteredTotalVotes
         )
     {
         order[] memory ordersTemp = new order[](orderIDCounter - 1);
         string[] memory customerComplaints = new string[](orderIDCounter - 1);
         string[] memory riderComplaints = new string[](orderIDCounter - 1);
+        uint256[] memory totalVotes = new uint256[](orderIDCounter - 1);
         uint256 count;
         for (uint256 i = 1; i < orderIDCounter; i++) {
             if (
@@ -321,21 +388,27 @@ contract Order {
                 ordersTemp[count] = orders[i];
                 customerComplaints[count] = conflicts[i].customerComplaint;
                 riderComplaints[count] = conflicts[i].riderComplaint;
+                totalVotes[count] =
+                    conflicts[i].customerVotes +
+                    conflicts[i].riderVotes;
                 count += 1;
             }
         }
         filteredOrders = new order[](count);
         filteredCustComplaints = new string[](count);
         filteredRiderComplaints = new string[](count);
+        filteredTotalVotes = new uint256[](count);
         for (uint256 i = 0; i < count; i++) {
             filteredOrders[i] = ordersTemp[i];
             filteredCustComplaints[i] = customerComplaints[i];
             filteredRiderComplaints[i] = riderComplaints[i];
+            filteredTotalVotes[i] = totalVotes[i];
         }
         return (
             filteredOrders,
             filteredCustComplaints,
-            filteredRiderComplaints
+            filteredRiderComplaints,
+            filteredTotalVotes
         );
     }
 
@@ -357,25 +430,33 @@ contract Order {
             !conflicts[_orderId].voted[msg.sender],
             "You have already voted"
         );
-        
+
         if (_vote) {
             conflicts[_orderId].customerVotes++;
         } else if (!_vote) {
             conflicts[_orderId].riderVotes++;
         }
+        conflicts[_orderId].voted[msg.sender] = true;
         return ("Successfully Voted");
     }
 
     //Riders pick up order
     function pickupOrder(uint256 orderId) public riderOnly() {
-        require(orders[orderId].rider == address(0), "Order already picked up by another rider");
+        require(
+            orders[orderId].rider == address(0),
+            "Order already picked up by another rider"
+        );
         orders[orderId].rider = msg.sender;
     }
 
-    //Riders delivered order
-    function deliveredOrder(uint256 orderId, uint256 customerToken) public riderOnly() {
-        require(customerTokens[orderId] == customerToken, "Invalid Customer Token");
-        msg.sender.transfer(orders[orderId].deliveryFee);
+    //Customer receives order
+    function receivedOrder(uint256 orderId) public ownOrderOnly(orderId) {
+        require(orders[orderId].rider != address(0), "No rider");
+        require(orders[orderId].delivered == false, "Already received");
+        address payable _rider = address(uint160(orders[orderId].rider));
+        _rider.transfer(orders[orderId].deliveryFee);
         orders[orderId].delivered = true;
+        customers[orders[orderId].customer].successful++;
+        riders[orders[orderId].rider].successful++;
     }
 }
