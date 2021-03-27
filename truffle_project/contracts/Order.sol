@@ -5,6 +5,7 @@ contract Order {
     struct customer {
         uint8 rating;
         string deliveryAddress;
+        string pubKey;
         bool exist;
     }
 
@@ -45,15 +46,16 @@ contract Order {
     uint256 nextResolveTime;
     uint256 nextResolveOrderId;
     // orderID => Conflict struct
-    mapping(uint256 => conflict) public conflicts;
-    mapping(address => customer) public customers;
-    mapping(address => rider) public riders;
+    mapping(uint256 => conflict) private conflicts;
+    mapping(address => customer) private customers;
+    mapping(address => rider) private riders;
     // orderID => Order struct
     mapping(uint256 => order) private orders;
     // orderID => customer_token
     mapping(uint256 => uint256) private customerTokens;
 
     uint256 orderIDCounter = 1;
+    string verificationMsg = 'ABCDEFG' private;
 
     constructor() public {
     }
