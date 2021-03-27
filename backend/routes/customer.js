@@ -8,7 +8,7 @@ var orderJson = require("../../truffle_project/build/contracts/Order.json")
 var Order = truffleContract(orderJson)
 Order.setProvider(web3.currentProvider)
 
-router.get('/addCustomer', async function (req, res, next) {
+router.post('/addCustomer', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
@@ -29,13 +29,13 @@ router.get('/addCustomer', async function (req, res, next) {
 });
 
 //req.body user 1-10
-router.get('/createOrder', async function (req, res, next) {
+router.post('/createOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.createOrder.call(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user] })
+    await order.createOrder.call(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user], value: req.body.deliveryFee })
       .then(result => {
-        order.createOrder(req.body.restaurant, req.body.deliveryFee, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user] });
+        order.createOrder(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user], value: req.body.deliveryFee });
         return result;
       })
       .then(result => {
@@ -48,11 +48,11 @@ router.get('/createOrder', async function (req, res, next) {
   }
 });
 
-router.get('/updateOrder', async function (req, res, next) {
+router.post('/updateOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.updateOrder(req.body.orderId, { from: accts[req.body.user] })
+    await order.updateOrder(req.body.orderId, { from: accts[req.body.user], value: req.body.deliveryFee})
       .then(result => {
         res.status(200);
         res.send(result);
@@ -64,7 +64,7 @@ router.get('/updateOrder', async function (req, res, next) {
 });
 
 //req.body user 1-10
-router.get('/deleteOrder', async function (req, res, next) {
+router.post('/deleteOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
@@ -79,7 +79,7 @@ router.get('/deleteOrder', async function (req, res, next) {
   }
 });
 
-router.get('/getItemQuantity', async function (req, res, next) {
+router.post('/getItemQuantity', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
@@ -94,7 +94,7 @@ router.get('/getItemQuantity', async function (req, res, next) {
   }
 });
 
-router.get('/getNotPickedUpOrders', async function (req, res, next) {
+router.post('/getNotPickedUpOrders', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   var orderItem, holder;
@@ -129,7 +129,7 @@ router.get('/getNotPickedUpOrders', async function (req, res, next) {
   }
 });
 
-router.get('/getPickedUpOrders', async function (req, res, next) {
+router.post('/getPickedUpOrders', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   var orderItem, holder;
@@ -165,7 +165,7 @@ router.get('/getPickedUpOrders', async function (req, res, next) {
   }
 });
 
-router.get('/getOrderToken', async function (req, res, next) {
+router.post('/getOrderToken', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {

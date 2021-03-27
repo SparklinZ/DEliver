@@ -7,7 +7,7 @@ var cors = require('cors')
 
 var indexRouter = require('./routes/index');
 var customerRouter = require('./routes/customer');
-var riderRouter = require('./routes/customer');
+var riderRouter = require('./routes/rider');
 var votingRouter = require('./routes/voting');
 
 var app = express();
@@ -16,7 +16,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors());
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
