@@ -13,6 +13,7 @@ class RiderOrderList extends Component{
     }
 
     handleDelivered(id){
+        //change to alert --> to say succesfull
         const token = prompt('Please enter customer token for verification.');
         // call deliveredOrder(id, token);
         /** call backend deliveredOrder and submit with orderID and token **/
