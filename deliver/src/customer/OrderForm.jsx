@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
+import axios from 'axios';
 import './OrderForm.css'
+ 
 // import ReactScrollableList from 'react-scrollable-list';
 
 class OrderForm extends Component {
@@ -48,9 +50,32 @@ class OrderForm extends Component {
 
     }
 
-    handleSubmit(event){
+    async handleSubmit(event){
         // alert('An order is submitted: ' + this.state.RestaurantName);
-        console.log(this.state)
+
+        // const payload = {
+        //     "restaurant": this.state.RestaurantName,
+        //     "deliveryFee": this.state.FeesOffered,
+        //     "deliveryAddress": this.state.DeliverAddress,
+        //     "itemNames": this.state.OrderItem,
+        //     "itemQuantities": this.state.Quantity.map(Number),
+        //     "user": this.state.AccountNumber
+        // }
+
+        const payload = {
+            "restaurant":"mickeyDs",
+            "deliveryFee":100,
+            "deliveryAddress": "JW",
+            "itemNames": ["burgerA","burgerA"],
+            "itemQuantities":[1,2],
+            "user": 1
+          }
+
+        
+          await axios.get('http://localhost:5000/customer/test', payload).then(res => console.log(res.json())).catch(error => {return error})
+
+        
+        alert('submitting')
         event.preventDefault();
     }
 
@@ -168,3 +193,5 @@ class OrderForm extends Component {
 }
 
 export default OrderForm;
+
+
