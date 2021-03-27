@@ -10,8 +10,8 @@ var http = require('http');
 
 
 //start up script
-var startup = require('./startup');
-startup();
+// var startup = require('./startup');
+// startup();
 /**
  * Get port from environment and store in Express.
  */

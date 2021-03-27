@@ -12,24 +12,15 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-//req.body user 1-10
-router.get('/getConflict', async function (req, res, next) {
+//fileComplaint
+router.post('/complain', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.getConflicts.call({ from: accts[req.body.user] })
-      .then(result => {
-        var rand = Math.floor(Math.random() * (result[0].length));
-        conflict = {};
-        conflict.orderId = result[0][rand].orderId;
-        conflict.restaurant = result[0][rand].restaurant;
-        conflict.deliveryFee = result[0][rand].deliveryFee;
-        conflict.itemNames = result[0][rand].itemNames;
-        conflict.itemQuantities = result[0][rand].itemQuantities;
-        conflict.orderTime = result[0][rand].orderTime;
-        conflict.customerComplaint = result[1][rand];
-        conflict.riderComplaint = result[2][rand];
-        return conflict;
+    await order.fileComplaint.call(req.body.complaint, req.body.orderId, { from: accts[req.body.user] })
+      .then(_result => {
+        order.fileComplaint(req.body.complaint, req.body.orderId, { from: accts[req.body.user] })
+        return _result;
     }).then(result => {
       res.status(200);
       res.send(result);
@@ -40,7 +31,37 @@ router.get('/getConflict', async function (req, res, next) {
   }
 });
 
-router.get('/vote', async function (req, res, next) {
+//req.body user 1-10
+router.post('/getConflict', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.getConflicts.call({ from: accts[req.body.user] })
+    //   .then(result => {
+    //     var rand = Math.floor(Math.random() * (result[0].length));
+    //     result1 = result[0];
+    //     conflict = {};
+    //     conflict.orderId = result[0][rand].orderId;
+    //     conflict.restaurant = result[0][rand].restaurant;
+    //     conflict.deliveryFee = result[0][rand].deliveryFee;
+    //     conflict.itemNames = result[0][rand].itemNames;
+    //     conflict.itemQuantities = result[0][rand].itemQuantities;
+    //     conflict.orderTime = result[0][rand].orderTime;
+    //     conflict.customerComplaint = result[1][rand];
+    //     conflict.riderComplaint = result[2][rand];
+    //     return conflict;
+    // })
+    .then(result => {
+      res.status(200);
+      res.send(result);
+    })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
+router.post('/vote', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {

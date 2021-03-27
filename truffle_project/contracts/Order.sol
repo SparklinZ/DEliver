@@ -306,7 +306,7 @@ contract Order {
 
     function fileComplaint(string memory _complaint, uint256 _orderId)
         public
-        registeredUserOnly
+        registeredUserOnly()
         returns (string memory)
     {
         require(
@@ -316,7 +316,7 @@ contract Order {
         );
         require(
             !orders[_orderId].delivered,
-            "Delievery has already been confirmed by both rider and customer, complaint can no longer be filed"
+            "Delivery has already been confirmed by both rider and customer, complaint can no longer be filed"
         );
 
         //create conflict
@@ -364,12 +364,14 @@ contract Order {
         returns (
             order[] memory filteredOrders,
             string[] memory filteredCustComplaints,
-            string[] memory filteredRiderComplaints
+            string[] memory filteredRiderComplaints,
+            uint256[] memory filteredTotalVotes
         )
     {
         order[] memory ordersTemp = new order[](orderIDCounter - 1);
         string[] memory customerComplaints = new string[](orderIDCounter - 1);
         string[] memory riderComplaints = new string[](orderIDCounter - 1);
+        uint256[] memory totalVotes = new uint256[](orderIDCounter - 1);
         uint256 count;
         for (uint256 i = 1; i < orderIDCounter; i++) {
             if (
@@ -381,21 +383,25 @@ contract Order {
                 ordersTemp[count] = orders[i];
                 customerComplaints[count] = conflicts[i].customerComplaint;
                 riderComplaints[count] = conflicts[i].riderComplaint;
+                totalVotes[count] = conflicts[i].customerVotes + conflicts[i].riderVotes;
                 count += 1;
             }
         }
         filteredOrders = new order[](count);
         filteredCustComplaints = new string[](count);
         filteredRiderComplaints = new string[](count);
+        filteredTotalVotes = new uint256[](count);
         for (uint256 i = 0; i < count; i++) {
             filteredOrders[i] = ordersTemp[i];
             filteredCustComplaints[i] = customerComplaints[i];
             filteredRiderComplaints[i] = riderComplaints[i];
+            filteredTotalVotes[i] = totalVotes[i];
         }
         return (
             filteredOrders,
             filteredCustComplaints,
-            filteredRiderComplaints
+            filteredRiderComplaints,
+            filteredTotalVotes
         );
     }
 
