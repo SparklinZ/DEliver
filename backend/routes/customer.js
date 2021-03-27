@@ -180,4 +180,17 @@ router.post('/receivedOrder', async function (req, res, next) {
   }
 });
 
+router.get('/test', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    
+        res.status(200);
+        res.send(req.body);
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
 module.exports = router;
