@@ -120,7 +120,7 @@ contract Order {
     }
 
     function isCustomer() public view registeredUserOnly() returns (bool) {
-        return customers[msg.sender.exist];
+        return customers[msg.sender].exist;
     }
 
     function createOrder(
