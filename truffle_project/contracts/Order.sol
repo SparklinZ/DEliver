@@ -168,6 +168,10 @@ contract Order {
         return (msg.sender);
     }
 
+    function isCustomer() public view registeredUserOnly() returns (bool) {
+        return customers[msg.sender.exist];
+    }
+
     function createOrder(
         string memory _restaurant,
         string memory _deliveryAddress,
