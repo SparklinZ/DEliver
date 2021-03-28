@@ -37,7 +37,7 @@ class CompletedOrders extends Component{
         return(
             <div className='taskReport'>
                 <h1> Delivery History </h1>
-                <ul> 
+                <ul style = {{overflowY: "scroll"}, {height: "280px"}}> 
                 {
                     this.state['orders'].map(x => 
                     <li>
