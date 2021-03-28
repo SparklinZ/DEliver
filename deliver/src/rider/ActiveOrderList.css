@@ -15,8 +15,10 @@
 }
 
 ul {
+  overflow: hidden;
   justify-content: right;
   list-style-type: none;
+  height: 610px;
 }
 
 h3 {

@@ -6,10 +6,25 @@ class RiderOrderList extends Component{
         super()
         /**call lists and created orders**/
         this.state = {
-            orders:[
-                {id: '3', DeliveryAddress: 'Changi Airport', RestaurantName: 'Ding TaiFung', FeesOffered: 5, items: ['K', 'da', 'sd']},
-            ]
+            riderId: 1,
+            orders:[]
         }
+    }
+
+    componentDidMount() {
+        const data = { user: this.state.riderId };
+        fetch('http://localhost:5000/rider/getOwnOrders',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then((response) => response.json())
+        .then(list => {
+            this.setState({ orders: list });
+        });
     }
 
     handleDelivered(id){
@@ -29,14 +44,14 @@ class RiderOrderList extends Component{
         return(
             <div className='taskReport'>
                 <h1> Task Report </h1>
-                <ul> 
+                <ul style = {{overflowY: "scroll"}, {height: "280px"}}> 
                 {
-                    this.state['orders'].map(x => 
+                    this.state.orders.map(x => 
                     <li>
-                     <h3> {x.RestaurantName} </h3>
-                     <p> {x.DeliveryAddress} </p>
-                     <p> Items: {x.items.join(', ')} ...</p>
-                     <p> Delivery Fee:  {x.FeesOffered} </p>
+                     <h3> {x.restaurant} </h3>
+                     <p> {x.deliveryAddress} </p>
+                     <p> Items: {x.itemNames.join(', ')} ...</p>
+                     <p> Delivery Fee:  {x.deliveryFee} </p>
                      <button type="button" onClick={() => this.handleDelivered(x.id)}> Delivered </button>
                     </li>)
                 }

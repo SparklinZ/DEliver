@@ -16,6 +16,7 @@
 }
 
 ul {
+  overflow-y: scroll;
   justify-content: right;
   list-style-type: none;
 }
