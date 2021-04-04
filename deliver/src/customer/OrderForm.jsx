@@ -50,32 +50,22 @@ class OrderForm extends Component {
 
     }
 
-    async handleSubmit(event){
-        // alert('An order is submitted: ' + this.state.RestaurantName);
-
-        // const payload = {
-        //     "restaurant": this.state.RestaurantName,
-        //     "deliveryFee": this.state.FeesOffered,
-        //     "deliveryAddress": this.state.DeliverAddress,
-        //     "itemNames": this.state.OrderItem,
-        //     "itemQuantities": this.state.Quantity.map(Number),
-        //     "user": this.state.AccountNumber
-        // }
+    handleSubmit(event){
+        alert('Submitting a new order: ' + this.state.RestaurantName);
 
         const payload = {
-            "restaurant":"mickeyDs",
-            "deliveryFee":100,
-            "deliveryAddress": "JW",
-            "itemNames": ["burgerA","burgerA"],
-            "itemQuantities":[1,2],
-            "user": 1
-          }
+            "restaurant": this.state.RestaurantName,
+            "deliveryFee": this.state.FeesOffered,
+            "deliveryAddress": this.state.DeliverAddress,
+            "itemNames": this.state.OrderItem,
+            "itemQuantities": this.state.Quantity.map(Number),
+            "user": this.state.AccountNumber
+        }
 
-        
-          await axios.get('http://localhost:5000/customer/test', payload).then(res => console.log(res.json())).catch(error => {return error})
-
-        
-        alert('submitting')
+        axios.post('http://localhost:5000/customer/createOrder', payload)
+        .then(res => res.json())
+        .catch(error => {console.log(error)})
+        window.location.reload();
         event.preventDefault();
     }
 

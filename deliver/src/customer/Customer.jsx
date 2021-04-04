@@ -9,10 +9,11 @@ class Customer extends Component {
 
         this.state = {
             AccountNumber: this.props.location.state ? this.props.location.state.AccountNumber: '' ,
-            IsCustomer: this.props.location.state ? this.props.location.state.IsCustomer: ''
+            IsCustomer: this.props.location.state ? this.props.location.state.IsCustomer: '',
+            pending_orders: []
         }
-        // console.log(this.state)
     }
+
 
     render() {
         if (this.state.IsCustomer) {
