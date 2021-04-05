@@ -37,21 +37,31 @@ class ActiveOrderList extends Component{
         })
         .then((response) => response.json())
         .then(list => {
-            this.setState({ orders: list });
+            this.setState({ orders: list.reverse() });
         });
     }
 
     handlePickUp(id){
-        alert("Accepted Order (ID:" + id + "). Please complete the delivery in an hour.");
-        // call pickupOrder(id);
-        /** call backend pickUpOrder and submit with orderID **/
+        alert("Accepted Order [ID:" + id + "]. Please complete the delivery in an hour.");
+        const data = { 
+            orderId: id,
+            user: this.state.riderId, 
+        };
+        fetch('http://localhost:5000/rider/pickupOrder',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then(res => res.json())
+        .catch(error => {console.log(error)})
     }
 
     render(){
         return(
             <div className='activeOrders'>
                 <h1> All Active Orders </h1>
-                <button onClick={this.fetchOrders}> Load New Orders </button>
                 <ul> 
                 {
                     this.state.orders.map(x => 
@@ -60,7 +70,7 @@ class ActiveOrderList extends Component{
                      <p> {x.deliveryAddress} </p>
                      <p> Items: {x.itemNames.join(', ')} ...</p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
-                    <button type="button" onClick={() => this.handlePickUp(x.id)}> Pick Up </button>
+                    <button type="button" onClick={() => this.handlePickUp(x.orderId)}> Pick Up </button>
                     </li>)
                 }
                 </ul>
