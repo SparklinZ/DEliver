@@ -113,4 +113,41 @@ router.post('/getOwnOrders', async function (req, res, next) {
   }
 });
 
+router.post('/deliveredOrder', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  var orderItem, holder;
+  try {
+    await order.getOwnOrdersRider.call({ from: accts[req.body.user] })
+      .then(result => {
+        result = result.filter(order => order["delivered"]);
+        return result
+      })
+      .then(result => {
+        holder = [];
+        result.forEach(elem =>{
+          orderItem = {};
+          orderItem.orderId = elem.orderId;
+          orderItem.rider = elem.rider;
+          orderItem.restaurant = elem.restaurant;
+          orderItem.deliveryFee = elem.deliveryFee;
+          orderItem.foodFee = elem.foodFee;
+          orderItem.deliveryAddress = elem.deliveryAddress;
+          orderItem.itemNames = elem.itemNames;
+          orderItem.itemQuantities = elem.itemQuantities;
+          orderItem.orderTime = elem.orderTime;
+          holder.push(orderItem);
+        })
+        return holder;
+      })
+      .then(result => {
+        res.status(200);
+        res.send(result);
+      })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
 module.exports = router;
