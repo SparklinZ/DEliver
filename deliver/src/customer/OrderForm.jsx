@@ -62,11 +62,16 @@ class OrderForm extends Component {
         var check = true
         for(const prop in payload) {
             if (payload[prop]) {
-                
+
             } else {
                 check = false
             }
         }
+
+        if (payload.itemNames.length == 0){
+            check = false
+        }
+
         if (check) {
             alert('Submitting a new order: ' + this.state.RestaurantName);
             axios.post('http://localhost:5000/customer/createOrder', payload)
