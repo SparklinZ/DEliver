@@ -58,6 +58,22 @@ class ActiveOrderList extends Component{
         .catch(error => {console.log(error)})
     }
 
+    convertTime(time) {
+        const dateObject = new Date(time*1000).toLocaleString();
+        return dateObject;
+    }
+
+    listItems(names, quantity) {
+        var string = "";
+        for(let i = 0; i < names.length; i++){
+            string += quantity[i] + "=" + names[i]
+            if (i != names.length-1) {
+                string += ", "
+            } 
+        };
+        return string;
+    }
+
     render(){
         return(
             <div className='activeOrders'>
@@ -68,8 +84,9 @@ class ActiveOrderList extends Component{
                     <li>
                      <h3> {x.restaurant} </h3>
                      <p> {x.deliveryAddress} </p>
-                     <p> Items: {x.itemNames.join(', ')} ...</p>
+                     <p> Food Items: { this.listItems(x.itemNames, x.itemQuantities) } </p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
+                     <p> Timestamp: { this.convertTime(x.orderTime) } </p>
                     <button type="button" onClick={() => this.handlePickUp(x.orderId)}> Pick Up </button>
                     </li>)
                 }
