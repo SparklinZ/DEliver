@@ -47,12 +47,9 @@ class OrderForm extends Component {
         }
     
     // console.log(this.state)
-
     }
 
     handleSubmit(event){
-        alert('Submitting a new order: ' + this.state.RestaurantName);
-
         const payload = {
             "restaurant": this.state.RestaurantName,
             "deliveryFee": this.state.FeesOffered,
@@ -62,11 +59,26 @@ class OrderForm extends Component {
             "user": this.state.AccountNumber
         }
 
-        axios.post('http://localhost:5000/customer/createOrder', payload)
-        .then(res => res.json())
-        .catch(error => {console.log(error)})
-        window.location.reload();
-        event.preventDefault();
+        var check = true
+        for(const prop in payload) {
+            if (payload[prop]) {
+                
+            } else {
+                check = false
+            }
+        }
+        if (check) {
+            alert('Submitting a new order: ' + this.state.RestaurantName);
+            axios.post('http://localhost:5000/customer/createOrder', payload)
+            .then(res => res.json())
+            .catch(error => {console.log(error)})
+            window.location.reload();
+            event.preventDefault();            
+        } else {
+            alert("Do not leave any field empty!")
+            event.preventDefault();
+        }
+
     }
 
     handleAddNewItem(event){
@@ -105,15 +117,6 @@ class OrderForm extends Component {
         event.preventDefault();
     }
 
-    // handleValidation(){
-    //     let fields = this.state.fields;
-    //     let errors = {};
-    //     let formIsValid = true;
-
-    //     if (!fields[''])
-
-    // }
-
 
     render() {
         // if no active order, return this
@@ -121,7 +124,7 @@ class OrderForm extends Component {
             <div>
                 <form className='form' style={{width: '50%', float:'right'}}>
                     <h1>Submit Order</h1>
-                    <h3 style={{fontSize:'20px', marginBottom:'0px', marginRight:'35%', textAlign:'center'}}>Delivering</h3>
+                    <h3 style={{fontSize:'20px', marginBottom:'0px', marginRight:'35%', textAlign:'left'}}>Items</h3>
                     <nav className='addItemFormNav'>
                         <ul className='itemList'>
                             {

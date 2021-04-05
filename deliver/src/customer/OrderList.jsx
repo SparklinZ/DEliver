@@ -8,15 +8,7 @@ class OrderList extends Component{
         this.state = {
             AccountNumber: this.props.AccountNumber,
             pending_orders: [],
-            pickedup_order: [{
-                "orderId": "8",
-                "restaurant": "afgds",
-                "deliveryFee": "1",
-                "deliveryAddress": "TEst2",
-                "itemNames": [],
-                "itemQuantities": [],
-                "orderTime": "1617525277"
-            }]
+            pickedup_order: []
         }
 
         this.handleChange = this.handleChange.bind(this)
@@ -40,14 +32,14 @@ class OrderList extends Component{
                         this.setState(state)
                     }).then(res => console.log(this.state))
 
-        // axios.post('http://localhost:5000/customer/getPickedUpOrders', payload)
-        // .then(res => {
-        //     console.log(res.data)
-        //     this.setState({pickedup_order: res.data})
-        //     const state = this.state
-        //     this.state.pickedup_order.map(order=>state[order.orderId]='')
-        //     this.setState(state)
-        // }).then(res => console.log(this.state))
+        axios.post('http://localhost:5000/customer/getPickedUpOrders', payload)
+        .then(res => {
+            console.log(res.data)
+            this.setState({pickedup_order: res.data})
+            const state = this.state
+            this.state.pickedup_order.map(order=>state[order.orderId]='')
+            this.setState(state)
+        }).then(res => console.log(this.state))
     }
 
     handleChange(event){
@@ -98,8 +90,9 @@ class OrderList extends Component{
             "orderId": order_id,
             "user": accountNumber
         }
-        axios.post('http://localhost:5000/customer/receivedOrder', payload).then(res => console.log(res))
+
         alert("Order: " + order_id + " has been closed!")
+        axios.post('http://localhost:5000/customer/receivedOrder', payload).then(res => console.log(res))
         window.location.reload();
         event.preventDefault();
     }
@@ -114,8 +107,9 @@ class OrderList extends Component{
             "complaint": complaint,
             "user": accountNumber
         }
-        axios.post('http://localhost:5000/voting/complain', payload).then(res => console.log(res))
+
         alert("You have filed for a complain!")
+        axios.post('http://localhost:5000/voting/complain', payload).then(res => console.log(res))
         window.location.reload();
         event.preventDefault();
     }
@@ -132,7 +126,7 @@ class OrderList extends Component{
                         <li>
                             <form>
                                 <p>Your order for {x.itemNames.join(', ')} @{x.restaurant} with ${x.deliveryFee} delivery ordered is on its way to you! </p>
-                                <textarea name={x.orderId} type='text' style={{width: "80%", height:"100px", marginBottom:"2px", marginRight:'2.5px', textAlign:'right'}} value={this.state[x.orderId]} onChange={this.handleChange}/>
+                                <textarea name={x.orderId} type='text' style={{width: "80%", height:"40px", marginBottom:"2px", marginRight:'2.5px', textAlign:'right'}} value={this.state[x.orderId]} onChange={this.handleChange}/>
                                 <br/>
                                 <button title={x.orderId} className='editFeesButton' type='submit' style={{width:"200px", paddingBottom:'5px'}} onClick={this.handleCompleteOrder}>Complete Order</button>
                                 <br/>
