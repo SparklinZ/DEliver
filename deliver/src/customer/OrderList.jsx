@@ -148,8 +148,9 @@ class OrderList extends Component{
                             <p> Items: {x.itemNames.join(', ')} ...</p>
                             <form>                        
                                 <input name={x.orderId} min="0" type='number' placeholder={x.deliveryFee} style={{width: "15%", marginBottom:"2px", marginRight:'2.5px', textAlign:'right'}} value={this.state[x.orderId]} onChange={this.handleChange}/>
-                            <button title={x.orderId} className='editFeesButton' type='submit' style={{width:"100px"}} onClick={this.handleEditFee}>Edit Fees</button>
-                            <button title={x.orderId} className='deleteOrderButton' type='submit' onClick={this.handleDeleteOrder}>Delete</button>
+                                <br/>
+                            <button title={x.orderId} className='editFeesButton' type='submit' style={{height:"30px", width:"150px"}} onClick={this.handleEditFee}>Edit Fees</button>
+                            <button title={x.orderId} className='deleteOrderButton' type='submit' style={{height:"30px", width:"100px"}} onClick={this.handleDeleteOrder}>Delete</button>
                             </form>
                         </li>)
                     }
