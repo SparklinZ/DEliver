@@ -36,9 +36,9 @@ class OrderList extends Component{
         .then(res => {
             console.log(res.data)
             this.setState({pickedup_order: res.data})
-            const state = this.state
-            this.state.pickedup_order.map(order=>state[order.orderId]='')
-            this.setState(state)
+            // const state = this.state
+            // this.state.pickedup_order.map(order=>state[order.orderId]='')
+            // this.setState(state)
         }).then(res => console.log(this.state))
     }
 
@@ -101,13 +101,14 @@ class OrderList extends Component{
     handleFileComplain(event){
         const order_id = event.target.title
         const accountNumber = this.state.AccountNumber
-        const complaint = this.state[order_id]
+
+        const token = prompt('Please submit supporting evidence along with your complaint.');
+        console.log(token)
         const payload = {
             "orderId": order_id,
-            "complaint": complaint,
+            "complaint": token,
             "user": accountNumber
         }
-
         alert("You have filed for a complain!")
         axios.post('http://localhost:5000/voting/complain', payload).then(res => console.log(res))
         window.location.reload();
@@ -126,11 +127,9 @@ class OrderList extends Component{
                         <li>
                             <form>
                                 <p>Your order for {x.itemNames.join(', ')} @{x.restaurant} with ${x.deliveryFee} delivery ordered is on its way to you! </p>
-                                <textarea name={x.orderId} type='text' style={{width: "80%", height:"40px", marginBottom:"2px", marginRight:'2.5px', textAlign:'right'}} value={this.state[x.orderId]} onChange={this.handleChange}/>
+                                <button title={x.orderId} className='editFeesButton' type='submit' style={{height:"30px", width:"200px", paddingBottom:'5px'}} onClick={this.handleCompleteOrder}>Complete Order</button>
                                 <br/>
-                                <button title={x.orderId} className='editFeesButton' type='submit' style={{width:"200px", paddingBottom:'5px'}} onClick={this.handleCompleteOrder}>Complete Order</button>
-                                <br/>
-                                <button title={x.orderId} className='deleteOrderButton' type='submit' style={{width:"200px"}} onClick={this.handleFileComplain}>File Complain</button>
+                                <button title={x.orderId} className='deleteOrderButton' type='submit' style={{height:"30px", width:"200px"}} onClick={this.handleFileComplain}>File Complain</button>
                             </form>
                         </li>)
                     }
@@ -146,6 +145,7 @@ class OrderList extends Component{
                             <h3> {x.restaurant} </h3>
                             <p> Delivery Address: {x.deliveryAddress} </p>
                             <p> Items: {x.itemNames.join(', ')} ...</p>
+                            <p> Order time: {Date(x.orderTime)} </p>
                             <form>                        
                                 <input name={x.orderId} min="0" type='number' placeholder={x.deliveryFee} style={{width: "15%", marginBottom:"2px", marginRight:'2.5px', textAlign:'right'}} value={this.state[x.orderId]} onChange={this.handleChange}/>
                                 <br/>
