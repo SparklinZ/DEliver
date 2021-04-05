@@ -58,6 +58,7 @@ router.post('/getConflict', async function (req, res, next) {
         conflict.orderId = result[0][rand].orderId;
         conflict.restaurant = result[0][rand].restaurant;
         conflict.deliveryFee = result[0][rand].deliveryFee;
+        conflict.foodFee = result[0][rand].foodFee;
         conflict.itemNames = result[0][rand].itemNames;
         conflict.itemQuantities = result[0][rand].itemQuantities;
         conflict.orderTime = result[0][rand].orderTime;

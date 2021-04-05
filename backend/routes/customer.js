@@ -33,9 +33,9 @@ router.post('/createOrder', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
   try {
-    await order.createOrder.call(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user], value: req.body.deliveryFee })
+    await order.createOrder.call(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, req.body.deliveryFee, req.body.foodFee, { from: accts[req.body.user], value: req.body.deliveryFee + req.body.foodFee })
       .then(result => {
-        order.createOrder(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, { from: accts[req.body.user], value: req.body.deliveryFee });
+        order.createOrder(req.body.restaurant, req.body.deliveryAddress, req.body.itemNames, req.body.itemQuantities, req.body.deliveryFee, req.body.foodFee, { from: accts[req.body.user], value: req.body.deliveryFee + req.body.foodFee });
         return result;
       })
       .then(result => {
@@ -101,6 +101,10 @@ router.post('/getNotPickedUpOrders', async function (req, res, next) {
   try {
     await order.getOwnOrders.call({ from: accts[req.body.user] })
       .then(result => {
+        for(i=0;i<result[0].length;i++){
+          result[0][i].hasFiledComplain = result[1][i]
+        }
+        result = result[0]
         result = result.filter(order => order["rider"] == "0x0000000000000000000000000000000000000000");
         return result
       })
@@ -109,12 +113,14 @@ router.post('/getNotPickedUpOrders', async function (req, res, next) {
         result.forEach(elem =>{
           orderItem = {};
           orderItem.orderId = elem.orderId;
+          orderItem.rider = elem.rider;
           orderItem.restaurant = elem.restaurant;
           orderItem.deliveryFee = elem.deliveryFee;
           orderItem.deliveryAddress = elem.deliveryAddress;
           orderItem.itemNames = elem.itemNames;
           orderItem.itemQuantities = elem.itemQuantities;
           orderItem.orderTime = elem.orderTime;
+          orderItem.hasFiledComplain = elem.hasFiledComplain;
           holder.push(orderItem);
         })
         return holder;
@@ -136,7 +142,11 @@ router.post('/getPickedUpOrders', async function (req, res, next) {
   try {
     await order.getOwnOrders.call({ from: accts[req.body.user] })
       .then(result => {
-        result = result.filter(order => order["rider"] != "0x0000000000000000000000000000000000000000" && !order["delivered"]);
+        for(i=0;i<result[0].length;i++){
+          result[0][i].hasFiledComplain = result[1][i]
+        }
+        result = result[0]
+        result = result.filter(order => order["rider"] != "0x0000000000000000000000000000000000000000");
         return result
       })
       .then(result => {
@@ -151,6 +161,7 @@ router.post('/getPickedUpOrders', async function (req, res, next) {
           orderItem.itemNames = elem.itemNames;
           orderItem.itemQuantities = elem.itemQuantities;
           orderItem.orderTime = elem.orderTime;
+          orderItem.hasFiledComplain = elem.hasFiledComplain;
           holder.push(orderItem);
         })
         return holder;
