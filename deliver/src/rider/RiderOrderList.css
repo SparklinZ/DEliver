@@ -36,3 +36,9 @@ li:hover {
   background: #eee;
   cursor: pointer;
 }
+
+.taskReport button:hover {
+  cursor: pointer;
+  background-color: #af220a; /* Green */
+  color: white;
+}

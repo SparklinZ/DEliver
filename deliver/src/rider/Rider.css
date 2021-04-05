@@ -16,17 +16,11 @@
   color: #518ce4;
 }
 
-.riderApp button {
+button {
   padding: 5px 20px;
   border-radius: 2px;
   background: rgb(11, 77, 121);
   border: none;
   color: #fff;
   font-size: 1rem;
-}
-
-.riderApp button:hover {
-  cursor: pointer;
-  background-color: #00594c; /* Green */
-  color: white;
 }

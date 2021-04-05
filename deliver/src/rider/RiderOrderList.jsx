@@ -23,21 +23,40 @@ class RiderOrderList extends Component{
         })
         .then((response) => response.json())
         .then(list => {
-            this.setState({ orders: list });
+            this.setState({ orders: list.reverse() });
         });
     }
 
-    handleDelivered(id){
-        //change to alert --> to say succesfull
-        const token = prompt('Please enter customer token for verification.');
-        // call deliveredOrder(id, token);
-        /** call backend deliveredOrder and submit with orderID and token **/
-        //const successful = true;
-        if (token) {
-            alert("Delivery Successful.");
-        } else {
-            alert("Invalid Customer Token.");
-        }
+    /*handleDelivered(id){
+        alert("Completed Order [ID:" + id + "].");
+        const data = { user: this.state.riderId };
+        //const token = prompt('Please enter customer token for verification.');
+        fetch('http://localhost:5000/rider/deliveredOrder',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then(res => res.json())
+        .catch(error => {console.log(error)})
+    }*/
+
+    handleComplaint(id){
+        const token = prompt('Please submit supporting evidence along with your complaint.');
+        const data = { 
+            user: this.state.riderId
+         };
+        //const token = prompt('Please enter customer token for verification.');
+        fetch('http://localhost:5000/rider/deliveredOrder',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then(res => res.json())
+        .catch(error => {console.log(error)})
     }
 
     render(){
@@ -52,7 +71,7 @@ class RiderOrderList extends Component{
                      <p> {x.deliveryAddress} </p>
                      <p> Items: {x.itemNames.join(', ')} ...</p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
-                     <button type="button" onClick={() => this.handleDelivered(x.id)}> Delivered </button>
+                     <button name="complain" type="button" onClick={() => this.handleComplaint(x.customer)}> File Complaint  </button>
                     </li>)
                 }
                 </ul>

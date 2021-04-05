@@ -38,3 +38,9 @@ li:hover {
   background: #eee;
   cursor: pointer;
 }
+
+.activeOrders button:hover {
+  cursor: pointer;
+  background-color: #0e7224; /* Green */
+  color: white;
+}
