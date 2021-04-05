@@ -57,6 +57,7 @@ router.post('/getOrders', async function (req, res, next) {
           orderItem.customer = elem.customer;
           orderItem.restaurant = elem.restaurant;
           orderItem.deliveryFee = elem.deliveryFee;
+          orderItem.foodFee = elem.foodFee;
           orderItem.deliveryAddress = elem.deliveryAddress;
           orderItem.itemNames = elem.itemNames;
           orderItem.itemQuantities = elem.itemQuantities;
@@ -93,6 +94,7 @@ router.post('/getOwnOrders', async function (req, res, next) {
           orderItem.rider = elem.rider;
           orderItem.restaurant = elem.restaurant;
           orderItem.deliveryFee = elem.deliveryFee;
+          orderItem.foodFee = elem.foodFee;
           orderItem.deliveryAddress = elem.deliveryAddress;
           orderItem.itemNames = elem.itemNames;
           orderItem.itemQuantities = elem.itemQuantities;
