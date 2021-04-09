@@ -23,11 +23,11 @@ class Rider extends Component {
                 <div className='riderApp' style={{width:'100%'}}>
                     <header style={{ background: '#4B9CD3', color: '#fff', padding: '10px 20px' }}> DEliver | Rider </header>
                         <div style={{paddingLeft:'20px', width: '48%', float:'left'}}>
-                            <ActiveOrderList/>
+                            <ActiveOrderList AccountNumber={this.state.AccountNumber}/>
                         </div>
                         <div style={{width: '48%', float:'right',paddingRight:'20px'}}>
-                            <RiderOrderList/>
-                            <CompletedOrders/>
+                            <RiderOrderList AccountNumber={this.state.AccountNumber}/>
+                            <CompletedOrders AccountNumber={this.state.AccountNumber}/>
                         </div>
                 </div>
             );  

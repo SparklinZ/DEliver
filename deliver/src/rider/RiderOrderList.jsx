@@ -2,17 +2,20 @@ import React, {Component} from 'react';
 import './RiderOrderList.css'
 
 class RiderOrderList extends Component{
-    constructor(){
-        super()
-        /**call lists and created orders**/
+    constructor(props){
+        super(props)
         this.state = {
-            riderId: 2,
-            orders:[]
+            AccountNumber: this.props.AccountNumber,
+            orders: []
         }
+        
+        this.handleComplaint = this.handleComplaint.bind(this)
+        this.convertTime = this.convertTime.bind(this)
+        this.listItems = this.listItems.bind(this)
     }
 
     componentDidMount() {
-        const data = { user: this.state.riderId };
+        const data = { user: this.state.AccountNumber };
         fetch('http://localhost:5000/rider/getOwnOrders',{
             method: 'POST',
             headers: {
@@ -45,7 +48,7 @@ class RiderOrderList extends Component{
     handleComplaint(id){
         const token = prompt('Please submit supporting evidence along with your complaint.');
         const data = { 
-            user: this.state.riderId
+            user: this.state.AccountNumber
          };
         //const token = prompt('Please enter customer token for verification.');
         fetch('http://localhost:5000/rider/deliveredOrder',{
