@@ -2,16 +2,21 @@ import React, {Component} from 'react';
 import './ActiveOrderList.css'
 
 class ActiveOrderList extends Component{
-    constructor(){
-        super()
+    constructor(props){
+        super(props)
         this.state = {
-            riderId: 2,
+            AccountNumber: this.props.AccountNumber,
             orders: []
         }
+
+        this.fetchOrders = this.fetchOrders.bind(this)
+        this.handlePickUp = this.handlePickUp.bind(this)
+        this.convertTime = this.convertTime.bind(this)
+        this.listItems = this.listItems.bind(this)
     }
 
     componentDidMount() {
-        const data = { user: this.state.riderId };
+        const data = { user: this.state.AccountNumber };
         fetch('http://localhost:5000/rider/getOrders',{
             method: 'POST',
             headers: {
@@ -26,7 +31,7 @@ class ActiveOrderList extends Component{
     }
 
     fetchOrders = () => {
-        const data = { user: this.state.riderId };
+        const data = { user: this.state.AccountNumber };
         fetch('http://localhost:5000/rider/getOrders',{
             method: 'POST',
             headers: {
@@ -45,7 +50,7 @@ class ActiveOrderList extends Component{
         alert("Accepted Order [ID:" + id + "]. Please complete the delivery in an hour.");
         const data = { 
             orderId: id,
-            user: this.state.riderId, 
+            user: this.state.AccountNumber, 
         };
         fetch('http://localhost:5000/rider/pickupOrder',{
             method: 'POST',

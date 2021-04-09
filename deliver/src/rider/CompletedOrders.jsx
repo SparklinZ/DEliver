@@ -2,20 +2,21 @@ import React, {Component} from 'react';
 import './CompletedOrders.css'
 
 class CompletedOrders extends Component{
-    constructor(){
-        super()
-        /**call lists and created orders**/
+    constructor(props){
+        super(props)
         this.state = {
-            riderId: 2,
-            orders:[
-                //{id: '3', DeliveryAddress: 'Changi Airport', RestaurantName: 'Ding TaiFung', FeesOffered: 5, items: ['K', 'da', 'sd']},
-                //{id: '2', DeliveryAddress: 'Marina Bay Sands', RestaurantName: 'Pizza Hut', FeesOffered: 5, items: ['K', 'da', 'sd'], customer: '63FaC9201494f0bd17B9892B9fae4d52fe3BD377'},
-            ]
+            AccountNumber: this.props.AccountNumber,
+            orders: []
         }
+
+        this.handleReview = this.handleReview.bind(this)
+        this.handleComplaint = this.handleComplaint.bind(this)
+        this.convertTime = this.convertTime.bind(this)
+        this.listItems = this.listItems.bind(this)
     }
 
     componentDidMount() {
-        const data = { user: this.state.riderId };
+        const data = { user: this.state.AccountNumber };
         fetch('http://localhost:5000/rider/deliveredOrder',{
             method: 'POST',
             headers: {
