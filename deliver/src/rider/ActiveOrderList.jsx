@@ -5,7 +5,7 @@ class ActiveOrderList extends Component{
     constructor(){
         super()
         this.state = {
-            riderId: 1,
+            riderId: 2,
             orders: []
         }
     }
@@ -66,7 +66,7 @@ class ActiveOrderList extends Component{
     listItems(names, quantity) {
         var string = "";
         for(let i = 0; i < names.length; i++){
-            string += quantity[i] + "=" + names[i]
+            string += quantity[i] + "x " + names[i]
             if (i != names.length-1) {
                 string += ", "
             } 
@@ -85,6 +85,7 @@ class ActiveOrderList extends Component{
                      <h3> {x.restaurant} </h3>
                      <p> {x.deliveryAddress} </p>
                      <p> Food Items: { this.listItems(x.itemNames, x.itemQuantities) } </p>
+                     <p> Food Fee:  {x.foodFee} </p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
                      <p> Timestamp: { this.convertTime(x.orderTime) } </p>
                     <button type="button" onClick={() => this.handlePickUp(x.orderId)}> Pick Up </button>

@@ -6,7 +6,7 @@ class RiderOrderList extends Component{
         super()
         /**call lists and created orders**/
         this.state = {
-            riderId: 1,
+            riderId: 2,
             orders:[]
         }
     }
@@ -67,7 +67,7 @@ class RiderOrderList extends Component{
     listItems(names, quantity) {
         var string = "";
         for(let i = 0; i < names.length; i++){
-            string += quantity[i] + "=" + names[i]
+            string += quantity[i] + "x " + names[i]
             if (i != names.length-1) {
                 string += ", "
             } 
@@ -86,6 +86,7 @@ class RiderOrderList extends Component{
                      <h3> {x.restaurant} </h3>
                      <p> {x.deliveryAddress} </p>
                      <p> Food Items: { this.listItems(x.itemNames, x.itemQuantities) } </p>
+                     <p> Food Fee:  {x.foodFee} </p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
                      <p> Timestamp: { this.convertTime(x.orderTime) } </p>
                      <button name="complain" type="button" onClick={() => this.handleComplaint(x.customer)}> File Complaint  </button>
