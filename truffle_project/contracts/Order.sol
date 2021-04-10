@@ -59,8 +59,8 @@ contract Order {
 
     // orderID => Conflict struct
     mapping(uint256 => conflict) private conflicts;
-    mapping(address => customer) private customers;
-    mapping(address => rider) private riders;
+    mapping(address => customer) public customers;
+    mapping(address => rider) public riders;
     // orderID => Order struct
     mapping(uint256 => order) private orders;
 
