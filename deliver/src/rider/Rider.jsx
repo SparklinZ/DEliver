@@ -21,11 +21,11 @@ class Rider extends Component {
         if (this.state.IsCustomer === false) {
             return (
                 <div className='riderApp' style={{width:'100%'}}>
-                    <header style={{ background: '#4B9CD3', color: '#fff', padding: '10px 20px' }}> DEliver | Rider </header>
-                        <div style={{paddingLeft:'20px', width: '48%', float:'left'}}>
+                    <header style={{ background: '#4B9CD3', color: '#fff' }}> DEliver | Rider </header>
+                        <div class='column' style={{paddingLeft:'20px', width: '48%', float:'left'}}>
                             <ActiveOrderList AccountNumber={this.state.AccountNumber}/>
                         </div>
-                        <div style={{width: '48%', float:'right',paddingRight:'20px'}}>
+                        <div class='column' style={{width: '48%', float:'right',paddingRight:'20px'}}>
                             <RiderOrderList AccountNumber={this.state.AccountNumber}/>
                             <CompletedOrders AccountNumber={this.state.AccountNumber}/>
                         </div>

@@ -10,7 +10,6 @@ class CompletedOrders extends Component{
         }
 
         this.handleReview = this.handleReview.bind(this)
-        this.handleComplaint = this.handleComplaint.bind(this)
         this.convertTime = this.convertTime.bind(this)
         this.listItems = this.listItems.bind(this)
     }
@@ -38,16 +37,6 @@ class CompletedOrders extends Component{
             alert("Review successful.");
         } else {
             alert("Invalid Review Rating. Please Try Again.");
-        }
-    }
-
-    handleComplaint(customer){
-        const token = prompt('Please submit supporting evidence along with your complaint.');
-        if (token) {
-            // call backend with review s
-            alert("Complaint successful.");
-        } else {
-            alert("Invalid Complaint. Please Try Again.");
         }
     }
 
@@ -81,8 +70,7 @@ class CompletedOrders extends Component{
                      <p> Food Fee:  {x.foodFee} </p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
                      <p> Timestamp: { this.convertTime(x.orderTime) } </p>
-                     <button name="review" type="button" onClick={() => this.handleReview(x.customer)}> Review Customer </button>
-                     <button name="complain" type="button" onClick={() => this.handleComplaint(x.customer)}> File Complaint  </button>
+                     <button name="review" type="button" onClick={() => this.handleReview(x.orderId)}> Review Customer </button>
                     </li>)
                 }
                 </ul>
