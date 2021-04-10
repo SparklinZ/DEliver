@@ -30,28 +30,15 @@ class RiderOrderList extends Component{
         });
     }
 
-    /*handleDelivered(id){
-        alert("Completed Order [ID:" + id + "].");
-        const data = { user: this.state.riderId };
-        //const token = prompt('Please enter customer token for verification.');
-        fetch('http://localhost:5000/rider/deliveredOrder',{
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        }).then(res => res.json())
-        .catch(error => {console.log(error)})
-    }*/
-
     handleComplaint(id){
         const token = prompt('Please submit supporting evidence along with your complaint.');
         const data = { 
-            user: this.state.AccountNumber
+            complaint: token,
+            orderId: id,
+            user : this.state.AccountNumber,
          };
-        //const token = prompt('Please enter customer token for verification.');
-        fetch('http://localhost:5000/rider/deliveredOrder',{
+        alert("You have filed for a complain!")
+        fetch('http://localhost:5000/voting/complain',{
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -60,6 +47,7 @@ class RiderOrderList extends Component{
             body: JSON.stringify(data),
         }).then(res => res.json())
         .catch(error => {console.log(error)})
+        window.location.reload();
     }
 
     convertTime(time) {

@@ -26,7 +26,7 @@ class ActiveOrderList extends Component{
         })
         .then((response) => response.json())
         .then(list => {
-            this.setState({ orders: list });
+            this.setState({ orders: list.reverse()  });
         });
     }
 
