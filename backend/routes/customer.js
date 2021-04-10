@@ -191,6 +191,27 @@ router.post('/receivedOrder', async function (req, res, next) {
   }
 });
 
+router.post('/isCustomer', async function (req, res, next) {
+  var order = await Order.deployed();
+  accts = await web3.eth.getAccounts();
+  try {
+    await order.customers.call(accts[req.body.user])
+    .then(cust => {
+      result = {}
+      if(cust.exist){
+        result.customer = true
+      }else{
+        result.customer = false
+      }
+      res.status(200);
+      res.send(result);
+    })
+  } catch (err) {
+    res.status(500)
+    res.render('error', { error: err })
+  }
+});
+
 router.get('/test', async function (req, res, next) {
   var order = await Order.deployed();
   accts = await web3.eth.getAccounts();
