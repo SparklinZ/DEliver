@@ -70,7 +70,6 @@ class CompletedOrders extends Component{
                      <p> Food Fee:  {x.foodFee} </p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
                      <p> Timestamp: { this.convertTime(x.orderTime) } </p>
-                     <button name="review" type="button" onClick={() => this.handleReview(x.orderId)}> Review Customer </button>
                     </li>)
                 }
                 </ul>
