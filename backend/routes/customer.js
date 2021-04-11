@@ -143,6 +143,7 @@ router.post('/getPickedUpOrders', async function (req, res, next) {
     await order.getOwnOrders.call({ from: accts[req.body.user] })
       .then(result => {
         for(i=0;i<result[0].length;i++){
+          //0: no complaint 1: customer filed 2: rider filed 3: both filed
           result[0][i].hasFiledComplain = result[1][i]
         }
         result = result[0]
