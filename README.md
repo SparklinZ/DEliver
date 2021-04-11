@@ -47,8 +47,3 @@ npm run start
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
-
-## Maintenance
-Remeber to always create a new branch when developing a new feature using - `git checkout -b '20210311_zhubolin_implementcreateorder'` 
-
-Always `git pull` to get the latest version
