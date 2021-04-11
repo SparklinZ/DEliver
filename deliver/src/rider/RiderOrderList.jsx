@@ -80,7 +80,12 @@ class RiderOrderList extends Component{
                      <p> Food Fee:  {x.foodFee} </p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
                      <p> Timestamp: { this.convertTime(x.orderTime) } </p>
-                     <button name="complain" type="button" onClick={() => this.handleComplaint(x.orderId)}> File Complaint  </button>
+                    {
+                        x.hasFiledComplain == 1 ? <p style={{color:"red"}}>"RECEIVED COMPLAINT FROM CUSTOMER!" </p> : ""
+                    }
+                    {
+                        x.hasFiledComplain == 2 || x.hasFiledComplain == 3? <p style={{color:"red"}}> "Compaint has been filed!" </p> : <button name="complain" type="button" onClick={() => this.handleComplaint(x.orderId)}> File Complaint  </button>
+                    }
                     </li>)
                 }
                 </ul>
