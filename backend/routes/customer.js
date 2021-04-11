@@ -147,6 +147,7 @@ router.post('/getPickedUpOrders', async function (req, res, next) {
         }
         result = result[0]
         result = result.filter(order => order["rider"] != "0x0000000000000000000000000000000000000000");
+        result = result.filter(order => order["delivered"] == false);
         return result
       })
       .then(result => {
