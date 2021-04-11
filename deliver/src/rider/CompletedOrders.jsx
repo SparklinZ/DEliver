@@ -9,8 +9,7 @@ class CompletedOrders extends Component{
             orders: []
         }
 
-        this.handleReview = this.handleReview.bind(this)
-        this.handleComplaint = this.handleComplaint.bind(this)
+        //this.handleReview = this.handleReview.bind(this)
         this.convertTime = this.convertTime.bind(this)
         this.listItems = this.listItems.bind(this)
     }
@@ -31,7 +30,7 @@ class CompletedOrders extends Component{
         });
     }
 
-    handleReview(customer){
+    /*handleReview(customer){
         const token = prompt('Rate customer a scale from 1 to 5 with 1 being the most unsatisfactory to 5 being most satisfactory.');
         if (token < 5 & token > 0 ) {
             // call backend with review s
@@ -39,17 +38,7 @@ class CompletedOrders extends Component{
         } else {
             alert("Invalid Review Rating. Please Try Again.");
         }
-    }
-
-    handleComplaint(customer){
-        const token = prompt('Please submit supporting evidence along with your complaint.');
-        if (token) {
-            // call backend with review s
-            alert("Complaint successful.");
-        } else {
-            alert("Invalid Complaint. Please Try Again.");
-        }
-    }
+    }*/
 
     convertTime(time) {
         const dateObject = new Date(time*1000).toLocaleString();
@@ -81,8 +70,6 @@ class CompletedOrders extends Component{
                      <p> Food Fee:  {x.foodFee} </p>
                      <p> Delivery Fee:  {x.deliveryFee} </p>
                      <p> Timestamp: { this.convertTime(x.orderTime) } </p>
-                     <button name="review" type="button" onClick={() => this.handleReview(x.customer)}> Review Customer </button>
-                     <button name="complain" type="button" onClick={() => this.handleComplaint(x.customer)}> File Complaint  </button>
                     </li>)
                 }
                 </ul>

@@ -52,11 +52,12 @@ class OrderForm extends Component {
     handleSubmit(event){
         const payload = {
             "restaurant": this.state.RestaurantName,
-            "deliveryFee": this.state.FeesOffered,
+            "deliveryFee": Number(this.state.FeesOffered),
             "deliveryAddress": this.state.DeliverAddress,
             "itemNames": this.state.OrderItem,
             "itemQuantities": this.state.Quantity.map(Number),
-            "user": this.state.AccountNumber
+            "user": this.state.AccountNumber,
+            "foodFee": Number(this.state.TotalAmountFood)
         }
 
         var check = true
