@@ -60,12 +60,18 @@ class Voting extends Component {
         })
         .catch(error => {console.log(error)})
 
-        axios.post('http://localhost:5000/voting/getConflict', payload)
-            .then((response) => response.json())
-            .then(list => {
-                this.setState({ Content: list });
-                console.log(this.state)
-            });
+        fetch('http://localhost:5000/voting/getConflict',{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        })
+        .then((response) => response.json())
+        .then(list => {
+            this.setState({ Content: list });
+        });
         
         event.preventDefault();
     }
@@ -108,7 +114,7 @@ class Voting extends Component {
             );
         }
         else{
-            if (this.state.Content) {
+            if (this.state.Content.length === 0) {
                 return <Redirect to={{
                     pathname: this.state.CustomerOrRider === 'Customer' ? '/customer' : '/rider',
                     state: {
@@ -122,12 +128,12 @@ class Voting extends Component {
                         <header style={{ background: '#4B9CD3', color: '#fff', padding: '10px 20px' }}> DEliver | Voting </header>
                         <form className='votingForm'>
                             {
-                                <li style={{textAlign:'center', fontSize:'20px',font:'serif', whiteSpace:'pre-line', marginTop:"100px", marginLeft:"20px", marginRight:"20px"}}>
-                                    <p>Restaurant: {this.state.Content["restaurant"]}</p>
-                                    <p>Food Fee: {this.state.Content["foodFee"]}</p>
-                                    <p>Delivery Fee: {this.state.Content["deliveryFee"]}</p>
-                                    <p>Customer Complaint: {this.state.Content["customerComplaint"]}</p>
-                                    <p>Rider Complaint: {this.state.Content["riderComplaint"]}</p>
+                                <li style={{textAlign:'center', font:'serif', whiteSpace:'pre-line', marginTop:"100px", marginLeft:"20px", marginRight:"20px"}}>
+                                    <p style = {{fontSize: 18}}>Restaurant: {this.state.Content["restaurant"]}</p>
+                                    <p style = {{fontSize: 18}}>Food Fee: {this.state.Content["foodFee"]}</p>
+                                    <p style = {{fontSize: 18}}>Delivery Fee: {this.state.Content["deliveryFee"]}</p>
+                                    <p style = {{fontSize: 18}}>Customer Complaint: {this.state.Content["customerComplaint"]}</p>
+                                    <p style = {{fontSize: 18}}>Rider Complaint: {this.state.Content["riderComplaint"]}</p>
                                 </li>
                             }
                             <label className='form-label' style={{marginLeft:"33%" ,display:"block", top:"60%", textAlign:'center', alignContent:'center', position:"absolute", display:"block", fontWeight:"bold"}}>Who do you support?</label>
