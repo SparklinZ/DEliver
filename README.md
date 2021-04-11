@@ -1,6 +1,17 @@
 # IS4302
 A decentralised food delivery service application powered by blockchain technology. The order and delivery process are  fulfilled through direct peer-to-peer connections between the different participants. Intermediaries and platform fees are fully eliminated in order to maximise consumer welfare. Safe payment transactions and delivery handouts are regulated by Ethereum smart contracts. 
 
+## Features
+
+***Delivery option from any restaurant*** <br>
+Get delivery from any restaurant of choice
+
+***State your own delivery fee*** <br>
+For consumers, have total control in the fee you are willing to pay. For riders, have total control in the fee you are willing to receive.
+
+***Democratised Conflict Resolution*** <br>
+Get involved in resolving conflicts to achieve fair and transparent settlements.
+
 ## Setup
 
 1) Truffle 
