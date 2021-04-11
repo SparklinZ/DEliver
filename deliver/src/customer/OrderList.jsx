@@ -92,7 +92,7 @@ class OrderList extends Component{
         }
 
         alert("Order: " + order_id + " has been closed!")
-        axios.post('http://localhost:5000/customer/receivedOrder', payload).then(res => console.log(res))
+        axios.post('http://localhost:5000/customer/receivedOrder', payload).then(res => console.log(res)).catch(error=>console.log(error))
         window.location.reload();
         event.preventDefault();
     }
@@ -126,10 +126,15 @@ class OrderList extends Component{
                         this.state['pickedup_order'].map(x => 
                         <li>
                             <form>
-                                <p>Your order for {x.itemNames.join(', ')} @{x.restaurant} with ${x.deliveryFee} delivery ordered is on its way to you! </p>
+                                <p>Your order for {x.itemNames.join(', ')} @{x.restaurant}, order at {Date(x.orderTime)} with ${x.deliveryFee} delivery ordered is on its way to you! </p>
+                                {
+                                x.hasFiledComplain == 2 ? <p style={{color:"red"}}>"RECEIVED COMPLAINT FROM RIDER!"</p> : ""
+                                }
                                 <button title={x.orderId} className='editFeesButton' type='submit' style={{height:"30px", width:"200px", paddingBottom:'5px'}} onClick={this.handleCompleteOrder}>Complete Order</button>
                                 <br/>
-                                <button title={x.orderId} className='deleteOrderButton' type='submit' style={{height:"30px", width:"200px"}} onClick={this.handleFileComplain}>File Complain</button>
+                                {
+                                x.hasFiledComplain == 1 || x.hasFiledComplain == 3? <p style={{color:"red"}}>"Compaint has been filed!"</p>: <button title={x.orderId} className='deleteOrderButton' type='submit' style={{height:"30px", width:"200px"}} onClick={this.handleFileComplain}>File Complain</button>
+                                }
                             </form>
                         </li>)
                     }

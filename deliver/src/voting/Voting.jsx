@@ -128,13 +128,13 @@ class Voting extends Component {
                         <header style={{ background: '#4B9CD3', color: '#fff', padding: '10px 20px' }}> DEliver | Voting </header>
                         <form className='votingForm'>
                             {
-                                <li style={{textAlign:'center', font:'serif', whiteSpace:'pre-line', marginTop:"100px", marginLeft:"20px", marginRight:"20px"}}>
+                                <div style={{textAlign:'center', font:'serif', whiteSpace:'pre-line', marginTop:"100px", marginLeft:"20px", marginRight:"20px"}}>
                                     <p style = {{fontSize: 18}}>Restaurant: {this.state.Content["restaurant"]}</p>
                                     <p style = {{fontSize: 18}}>Food Fee: {this.state.Content["foodFee"]}</p>
                                     <p style = {{fontSize: 18}}>Delivery Fee: {this.state.Content["deliveryFee"]}</p>
                                     <p style = {{fontSize: 18}}>Customer Complaint: {this.state.Content["customerComplaint"]}</p>
                                     <p style = {{fontSize: 18}}>Rider Complaint: {this.state.Content["riderComplaint"]}</p>
-                                </li>
+                                </div>
                             }
                             <label className='form-label' style={{marginLeft:"33%" ,display:"block", top:"60%", textAlign:'center', alignContent:'center', position:"absolute", display:"block", fontWeight:"bold"}}>Who do you support?</label>
                             <select name='Supporting' style={{textAlign:'center', top: "70%", borderRadius: "2px", height: "36px", width: "300px", display:"inline-block", marginLeft:"27%", position:"absolute"}} onChange={this.handleChange}>
