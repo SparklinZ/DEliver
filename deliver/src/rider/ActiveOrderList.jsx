@@ -8,8 +8,6 @@ class ActiveOrderList extends Component{
             AccountNumber: this.props.AccountNumber,
             orders: []
         }
-
-        this.fetchOrders = this.fetchOrders.bind(this)
         this.handlePickUp = this.handlePickUp.bind(this)
         this.convertTime = this.convertTime.bind(this)
         this.listItems = this.listItems.bind(this)
@@ -20,22 +18,6 @@ class ActiveOrderList extends Component{
         fetch('http://localhost:5000/rider/getOrders',{
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        .then((response) => response.json())
-        .then(list => {
-            this.setState({ orders: list.reverse()  });
-        });
-    }
-
-    fetchOrders = () => {
-        const data = { user: this.state.AccountNumber };
-        fetch('http://localhost:5000/rider/getOrders',{
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
@@ -61,6 +43,7 @@ class ActiveOrderList extends Component{
             body: JSON.stringify(data),
         }).then(res => res.json())
         .catch(error => {console.log(error)})
+        window.location.reload();
     }
 
     convertTime(time) {

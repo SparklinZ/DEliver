@@ -9,7 +9,7 @@ class CompletedOrders extends Component{
             orders: []
         }
 
-        this.handleReview = this.handleReview.bind(this)
+        //this.handleReview = this.handleReview.bind(this)
         this.convertTime = this.convertTime.bind(this)
         this.listItems = this.listItems.bind(this)
     }
@@ -30,7 +30,7 @@ class CompletedOrders extends Component{
         });
     }
 
-    handleReview(customer){
+    /*handleReview(customer){
         const token = prompt('Rate customer a scale from 1 to 5 with 1 being the most unsatisfactory to 5 being most satisfactory.');
         if (token < 5 & token > 0 ) {
             // call backend with review s
@@ -38,7 +38,7 @@ class CompletedOrders extends Component{
         } else {
             alert("Invalid Review Rating. Please Try Again.");
         }
-    }
+    }*/
 
     convertTime(time) {
         const dateObject = new Date(time*1000).toLocaleString();
