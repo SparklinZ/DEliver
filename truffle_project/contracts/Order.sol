@@ -309,21 +309,35 @@ contract Order {
         public
         view
         riderOnly
-        returns (order[] memory filteredOrders)
+        returns (order[] memory filteredOrders, uint256[] memory ordersConflicts)
     {
         order[] memory ordersTemp = new order[](orderIDCounter - 1);
+        uint256[] memory conflictsTemp = new uint256[](orderIDCounter - 1);
         uint256 count;
         for (uint256 i = 1; i < orderIDCounter; i++) {
             if (orders[i].rider == msg.sender) {
                 ordersTemp[count] = orders[i];
+                if(conflicts[i].exist){
+                    if(bytes(conflicts[i].customerComplaint).length != 0 && bytes(conflicts[i].riderComplaint).length != 0){
+                        conflictsTemp[count] = 3;
+                    }else if(bytes(conflicts[i].customerComplaint).length == 0){
+                        conflictsTemp[count] = 2;
+                    }else{
+                        conflictsTemp[count] = 1;
+                    }
+                }else{
+                    conflictsTemp[count] = 0;
+                }
                 count += 1;
             }
         }
         filteredOrders = new order[](count);
+        ordersConflicts = new uint256[](count);
         for (uint256 i = 0; i < count; i++) {
             filteredOrders[i] = ordersTemp[i];
+            ordersConflicts[i] = conflictsTemp[i];
         }
-        return filteredOrders;
+        return (filteredOrders, ordersConflicts);
     }
 
     function fileComplaint(string memory _complaint, uint256 _orderId)

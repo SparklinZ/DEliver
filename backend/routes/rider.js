@@ -83,6 +83,10 @@ router.post('/getOwnOrders', async function (req, res, next) {
   try {
     await order.getOwnOrdersRider.call({ from: accts[req.body.user] })
       .then(result => {
+        for(i=0;i<result[0].length;i++){
+          result[0][i].hasFiledComplain = result[1][i]
+        }
+        result = result[0]
         result = result.filter(order => !order["delivered"]);
         return result
       })
@@ -99,6 +103,7 @@ router.post('/getOwnOrders', async function (req, res, next) {
           orderItem.itemNames = elem.itemNames;
           orderItem.itemQuantities = elem.itemQuantities;
           orderItem.orderTime = elem.orderTime;
+          orderItem.hasFiledComplain = elem.hasFiledComplain;
           holder.push(orderItem);
         })
         return holder;
