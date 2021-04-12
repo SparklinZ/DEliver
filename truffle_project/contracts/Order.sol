@@ -66,6 +66,10 @@ contract Order {
 
     uint256 orderIDCounter = 1;
 
+    //events
+    event updateOrderDeliveryFee(uint256 orderID);
+    event deleteOrderEvent(uint256 orderID);
+
     constructor() public {}
 
     modifier customerOnly() {
@@ -222,6 +226,7 @@ contract Order {
         );
         msg.sender.transfer(orders[orderId].deliveryFee);
         orders[orderId].deliveryFee = msg.value;
+        emit updateOrderDeliveryFee(orderId);
     }
 
     //delete order
@@ -232,6 +237,7 @@ contract Order {
         );
         msg.sender.transfer(orders[orderId].deliveryFee+orders[nextResolveOrderId].foodFee);
         delete orders[orderId];
+        emit deleteOrderEvent(orderId);
     }
 
     function getItemQuantity(uint256 orderId, string memory itemName)
