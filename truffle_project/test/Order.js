@@ -34,81 +34,91 @@ contract('Order', function(accounts) {
   describe('Create Orders', function() {
     it('Should be able to create order', async() => {
         let deliveryFee = 1000000000000000000n;
-        await orderInstance.createOrder("McDonalds", deliveryFee, "Orchard", { from: customerAccount })
-        let order = await orderInstance.orders.call(0);
-        let customer = await orderInstance.customers.call(customerAccount);
-
-        assert.strictEqual(order.customer,customerAccount, "Incorrect customer property");
-        assert.strictEqual(order.deliveryFee.toString(), deliveryFee.toString(), "Incorrect delivery fee property");
-        assert.strictEqual(order.restaurant, "McDonalds", "Incorrect restaurant property");
-        assert.strictEqual(order.delivered, false, "Incorrect delivered property");
-        assert.strictEqual(customer.deliveryAddress,"Orchard", "Delivery address of customer not updated");        
+        let itemNames = ["McChicken", "McSpicy"];
+        let itemQuantities = [1, 2];
+        let foodFee = 2000000000000000000n;
+        let orderNumber = await orderInstance.createOrder.call("McDonalds", "Orchard", itemNames, itemQuantities, deliveryFee, foodFee, 
+        {from: customerAccount, value: web3.utils.toWei('3', 'ether')});
+        
+        assert.strictEqual(orderNumber.toNumber(), 1, "Incorrect Order ID");
     });
 
     it('Should not be able to create order if not a customer', async() => {
-        let deliveryFee = 10000000;
-        await truffleAssert.reverts(
-            orderInstance.createOrder("McDonalds", deliveryFee, "Orchard", {
-                from: riderAccount
-            }),
-            "Customer only"
-        );
+      let deliveryFee = 1000000000000000000n;
+      let itemNames = ["McChicken", "McSpicy"];
+      let itemQuantities = [1, 2];
+      let foodFee = 2000000000000000000n;
+      await truffleAssert.reverts(orderInstance.createOrder("McDonalds", "Orchard", itemNames, itemQuantities, deliveryFee, foodFee, 
+      {from: riderAccount, value: web3.utils.toWei('3', 'ether')}), "Customer only");
     });
   });
 
-  describe('Add item to order', function() {
-    it('Should be able to add an item', async() => {
-        await orderInstance.addItem(0, "McChicken", 1, {from: customerAccount});
-        let quantity = await orderInstance.getItemQuantity.call(0, "McChicken");
-
-        assert.strictEqual(quantity.toNumber(), 1, "Incorrect item quantity");
-    });
-
-    it('Should not be able to add an item if quantity specified is zero', async() => {
-      await truffleAssert.reverts(
-        orderInstance.addItem(0, "McChicken", 0, {
-            from: customerAccount
-        }),
-        "Invalid quantity"
-      );
-    });
-
-    it('Should not be able to add an item if not the owner of order', async() => {
-      await truffleAssert.reverts(
-        orderInstance.addItem(0, "McChicken", 1, {
-            from: riderAccount
-        }),
-        "Can edit own orders only"
-      );
-    });
-  });
-
-  describe('Remove item from order', function() {
-    it('Should be able to remove an item', async() => {
-        await orderInstance.removeItem(0, "McChicken", {from: customerAccount});
-        let quantity = await orderInstance.getItemQuantity.call(0, "McChicken");
-
-        assert.strictEqual(quantity.toNumber(), 0, "Incorrect item quantity");
-    });
-
-    it('Should not be able to remove an item if not the owner of order', async() => {
-      await truffleAssert.reverts(
-        orderInstance.removeItem(0, "McChicken", {
-            from: riderAccount
-        }),
-        "Can edit own orders only"
-      );
-    });
-  });
+  describe('Update Order Delivery Fee', function() {
+    it('Should be able to update order delivery fee', async() => {
+      await orderInstance.createOrder("McDonalds", "Orchard", 
+      ["McChicken", "McSpicy"], [1, 2], 1000000000000000000n, 2000000000000000000n, 
+      {from: customerAccount, value: web3.utils.toWei('3', 'ether')});
+      
+      let result = await orderInstance.updateOrder(1, {from: customerAccount});
+      truffleAssert.eventEmitted(result, "updateOrderDeliveryFee");
+    })
+  })
 
   describe('Delete Order', function() {
     it('Should be able to delete an order', async() => {
-        await orderInstance.deleteOrder(0, {from: customerAccount})
-        .then(() => orderInstance.orders.call(0))
-        .then((order) => {
-          assert.equal(order.customer.valueOf(), 0, "Deletion not successful");
-        });
+        let result = await orderInstance.deleteOrder(1, {from: customerAccount});
+        truffleAssert.eventEmitted(result, "deleteOrderEvent");
     });
   });
 
+  describe('Riders Functions', function() {
+    it('Should be able to get all orders', async() => {
+      await orderInstance.createOrder("McDonalds", "Orchard", 
+      ["McChicken", "McSpicy"], [1, 2], 1000000000000000000n, 2000000000000000000n, 
+      {from: customerAccount, value: web3.utils.toWei('3', 'ether')});
+
+      let result = await orderInstance.getOrders.call({from: riderAccount});
+      assert.strictEqual(result.length, 2, "Invalid number of orders");
+    });
+
+    it('Should not be able to get all orders if not rider', async() => {
+      await truffleAssert.reverts(orderInstance.getOrders({from: customerAccount}), "Rider only");
+    });
+
+    it('Should not be able to pickup orders if not rider', async() => {
+      await truffleAssert.reverts(orderInstance.pickupOrder(2, {from: customerAccount}), "Rider only");
+    });
+
+    it('Should be able to get own orders', async() => {
+      await orderInstance.pickupOrder(2, {from: riderAccount});
+      let result = await orderInstance.getOwnOrdersRider({from: riderAccount});
+      let orders = result[0];
+      assert.strictEqual(orders.length, 1, "Invalid number of own orders");
+      assert.strictEqual(orders[0].rider, riderAccount, "Incorrect own order");
+    });
+
+    it('Should not be able to get own orders if not rider', async() => {
+      await truffleAssert.reverts(orderInstance.getOwnOrdersRider({from: customerAccount}), "Rider only");
+    })
+  });
+
+  describe('Customers Functions', function() {
+    it('Should be able to get own orders', async() => {
+      let result = await orderInstance.getOwnOrders({from: customerAccount});
+      let orders = result[0];
+      assert.strictEqual(orders.length, 1, "Invalid number of own orders");
+      assert.strictEqual(orders[0].customer, customerAccount, "Incorrect own order");
+    });
+
+    it('Should not be able to get own orders if not customer', async() => {
+      await truffleAssert.reverts(orderInstance.getOwnOrders({from: riderAccount}), "Customer only");
+    });
+  });
+
+  describe('Conflicts', function() {
+    it('Should be able to file a complaint', async() => {
+      let result = await orderInstance.fileComplaint.call("Did not arrive", 2, {from: customerAccount});
+      assert.strictEqual(result.toString(), "Successfully Filed Complaint", "Complaint not successful");
+    })
+  });
 });
