@@ -68,7 +68,7 @@ class ActiveOrderList extends Component{
                 <h1> All Active Orders </h1>
                 <ul> 
                 {
-                    this.state.orders.map(x => 
+                    this.state.orders.filter(x => x.foodFee != 0).map(x => 
                     <li>
                      <h3> {x.restaurant} </h3>
                      <p> {x.deliveryAddress} </p>
