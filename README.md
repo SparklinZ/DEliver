@@ -1,4 +1,4 @@
-# IS4302
+# DEliver
 A decentralised food delivery service application powered by blockchain technology. The order and delivery process are  fulfilled through direct peer-to-peer connections between the different participants. Intermediaries and platform fees are fully eliminated in order to maximise consumer welfare. Safe payment transactions and delivery handouts are regulated by Ethereum smart contracts. 
 
 ## Features
