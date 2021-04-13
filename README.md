@@ -47,6 +47,7 @@ Open frontend folder in integrated terminal and start
 npm run start
 ```
 ## Logging In
+10 demo accounts have been created. 
 In the Login Page, <br>
 To access the application as a **consumer**: enter any number from 0 to 5 <br>
 To access the application as a **rider**: enter any number from 6 to 9 <br>
