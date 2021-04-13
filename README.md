@@ -29,6 +29,12 @@ ganache-cli -p 8545
 
 2) Backend Module
 
+Go to backend folder and open www file. Uncomment the following codes under start up script to initalise accounts.
+```
+var startup = require('./startup');
+startup();
+```
+
 Open backend folder in integrated terminal and start
 ```
 npm run start
@@ -40,6 +46,10 @@ Open frontend folder in integrated terminal and start
 ```
 npm run start
 ```
+## Logging In
+In the Login Page,
+To access the application as a consumer: enter any number from 0 to 5
+To access the application as a rider: enter any number from 6 to 9
 
 ## Usage
 
