@@ -76,7 +76,7 @@ class OrderForm extends Component {
         if (check) {
             alert('Submitting a new order: ' + this.state.RestaurantName);
             axios.post('http://localhost:5000/customer/createOrder', payload)
-            .then(res => res.json())
+            .then(res => console.log(res))
             .catch(error => {console.log(error)})
             window.location.reload();
             event.preventDefault();            
