@@ -47,11 +47,9 @@ Open frontend folder in integrated terminal and start
 npm run start
 ```
 ## Logging In
-In the Login Page,
-To access the application as a consumer: enter any number from 0 to 5
-To access the application as a rider: enter any number from 6 to 9
-
-## Usage
+In the Login Page, <br>
+To access the application as a **consumer**: enter any number from 0 to 5 <br>
+To access the application as a **rider**: enter any number from 6 to 9 <br>
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
